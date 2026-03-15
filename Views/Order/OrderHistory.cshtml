@@ -1,0 +1,273 @@
+@model IEnumerable<RestaurantFoodOrderingCustomer.Models.Order>
+@{
+    ViewData["Title"] = "Order History";
+}
+
+<!-- Order History Page Container -->
+<div class="container my-4">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>
+            <i class="fas fa-history me-2"></i>Order History
+        </h2>
+        <a href="@Url.Action("MyOrders")" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Active Orders
+        </a>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="card mb-4 filter-card">
+        <div class="card-body">
+            <form method="get" asp-action="OrderHistory" id="filterForm">
+                <div class="row g-3 align-items-end">
+                    <!-- Search Filter -->
+                    <div class="col-md-9">
+                        <label for="searchTerm" class="form-label">
+                            <i class="fas fa-search me-1"></i>Search Order History
+                        </label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="searchTerm" 
+                               name="searchTerm"
+                               value="@ViewBag.SearchTerm"
+                               placeholder="Search by Order ID or Food Name...">
+                    </div>
+
+                    <!-- Filter Buttons -->
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-primary-custom w-100 mb-1">
+                            <i class="fas fa-search me-1"></i>Search
+                        </button>
+                        <a href="@Url.Action("OrderHistory")" class="btn btn-outline-secondary w-100">
+                            <i class="fas fa-redo me-1"></i>Clear
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delivered Orders List -->
+    @if (Model.Any())
+    {
+        <div class="row">
+            @foreach (var order in Model)
+            {
+                <div class="col-md-12 mb-4">
+                    <!-- Order Card -->
+                    <div class="card">
+                        <!-- Order Header -->
+                        <div class="card-header d-flex justify-content-between align-items-center bg-success text-white">
+                            <div>
+                                <h5 class="mb-0">Order #@order.OrderId</h5>
+                                <small>Ordered: @order.OrderDate.ToString("dd MMM yyyy, hh:mm tt")</small>
+                            </div>
+                            <!-- Delivered Badge -->
+                            <div>
+                                <span class="badge bg-light text-success">
+                                    <i class="fas fa-check-circle me-1"></i>Delivered
+                                </span>
+                            </div>
+                        </div>
+                        <!-- Order Body -->
+                        <div class="card-body">
+                            <!-- Delivery Info Alert -->
+                            <div class="alert alert-success mb-3">
+                                <i class="fas fa-check-circle me-2"></i>
+                                <strong>Delivered on:</strong> @(order.DeliveryDate?.ToString("dd MMM yyyy, hh:mm tt") ?? "N/A")
+                                <br>
+                                <small>How was your experience? Rate the items below.</small>
+                            </div>
+
+                            <div class="row">
+                                <!-- Order Items Column -->
+                                <div class="col-md-8">
+                                    <h6 class="mb-3">Order Items:</h6>
+                                    <!-- Loop Order Items -->
+                                    @if (order.OrderItems != null)
+                                    {
+                                        @foreach (var item in order.OrderItems)
+                                        {
+                                            <div class="d-flex align-items-center mb-2 p-2 order-item-row">
+                                                @if (!string.IsNullOrEmpty(item.FoodItem?.ImageUrl))
+                                                {
+                                                    <img src="@item.FoodItem.ImageUrl" alt="@item.FoodItem.FoodName" 
+                                                         class="rounded me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                                                }
+                                                <div class="flex-grow-1">
+                                                    <strong>@item.FoodItem?.FoodName</strong>
+                                                    <span class="text-muted"> x @item.Quantity</span>
+                                                    <br>
+                                                    <!-- Rate & Review Button -->
+                                                    <a href="@Url.Action("Create", "Review", new { foodId = item.FoodId, orderId = order.OrderId })" 
+                                                       class="btn btn-sm btn-warning mt-1">
+                                                        <i class="fas fa-star me-1"></i>Rate & Review
+                                                    </a>
+                                                </div>
+                                                <div>
+                                                    <strong>₹@item.TotalPrice</strong>
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                                <!-- Order Summary Column -->
+                                <div class="col-md-4">
+                                    <div class="bg-light p-3 rounded">
+                                        <h6>Order Summary</h6>
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span>Total Amount:</span>
+                                            <strong>₹@order.TotalAmount</strong>
+                                        </div>
+                                        <!-- Payment Method -->
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span>Payment:</span>
+                                            <strong>
+                                                @if (order.PaymentMethod == "Cash on Delivery")
+                                                {
+                                                    <i class="fas fa-money-bill-wave text-success me-1"></i>
+                                                }
+                                                else if (order.PaymentMethod == "Credit/Debit Card")
+                                                {
+                                                    <i class="fas fa-credit-card text-primary me-1"></i>
+                                                }
+                                                else if (order.PaymentMethod == "UPI")
+                                                {
+                                                    <i class="fas fa-mobile-alt text-info me-1"></i>
+                                                }
+                                                else if (order.PaymentMethod == "Net Banking")
+                                                {
+                                                    <i class="fas fa-university text-warning me-1"></i>
+                                                }
+                                                @order.PaymentMethod
+                                            </strong>
+                                        </div>
+                                        <!-- Payment Status -->
+                                        @if (order.PaymentStatus == "Paid")
+                                        {
+                                            <div class="text-center mb-2">
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-check-circle me-1"></i>Payment Completed
+                                                </span>
+                                            </div>
+                                        }
+                                        <hr>
+                                        <!-- Delivery Details -->
+                                        <p class="mb-2"><small><strong>Delivery Address:</strong></small></p>
+                                        <p class="text-muted small">@order.DeliveryAddress</p>
+                                        @if (!string.IsNullOrEmpty(order.ContactPhone))
+                                        {
+                                            <p class="mb-0"><small><strong>Phone:</strong> @order.ContactPhone</small></p>
+                                        }
+                                    </div>
+                                    <!-- View Details Button -->
+                                    <div class="mt-3">
+                                        <a href="@Url.Action("OrderDetails", new { id = order.OrderId })" class="btn btn-primary-custom btn-sm w-100">
+                                            <i class="fas fa-eye me-2"></i>View Full Details
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    <!-- No Order History Empty State -->
+    else
+    {
+        <div class="text-center my-5 py-5">
+            <i class="fas fa-history fa-5x text-muted mb-4"></i>
+            <h3>No Order History</h3>
+            <p class="text-muted mb-4">You don't have any delivered orders yet.</p>
+            <a href="@Url.Action("MyOrders")" class="btn btn-primary-custom btn-lg me-2">
+                <i class="fas fa-receipt me-2"></i>View Active Orders
+            </a>
+            <a href="@Url.Action("Menu", "Home")" class="btn btn-outline-primary btn-lg">
+                <i class="fas fa-utensils me-2"></i>Browse Menu
+            </a>
+        </div>
+    }
+</div>
+
+<style>
+    .btn-primary-custom {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+    }
+
+    .btn-primary-custom:hover {
+        background-color: #9a0e19;
+        border-color: #9a0e19;
+    }
+    
+    .order-item-row {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .order-item-row:hover {
+        background-color: #e9ecef;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .btn-warning {
+        background-color: #ffc107;
+        border-color: #ffc107;
+        color: #000;
+        font-weight: 500;
+    }
+    
+    .btn-warning:hover {
+        background-color: #ffca2c;
+        border-color: #ffca2c;
+        color: #000;
+        box-shadow: 0 2px 8px rgba(255, 193, 7, 0.4);
+    }
+
+    /* Filter Card Styles */
+    .filter-card {
+        border: none;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+    }
+
+    .filter-card .form-label {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+
+    .filter-card .form-control,
+    .filter-card .form-select {
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        padding: 0.6rem 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .filter-card .form-control:focus,
+    .filter-card .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(184, 14, 27, 0.15);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .filter-card .row > div {
+            margin-bottom: 10px;
+        }
+
+        .d-flex.justify-content-between {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .btn {
+            width: 100%;
+        }
+    }
+</style>

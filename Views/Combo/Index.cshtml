@@ -1,0 +1,174 @@
+@model IEnumerable<RestaurantFoodOrderingCustomer.Models.Combo>
+@{
+    ViewData["Title"] = "Combo Menu";
+}
+
+<!-- Combo Menu Page Container -->
+<div class="container my-5">
+    <!-- Page Header -->
+    <div class="text-center mb-5">
+        <h1 class="page-heading">
+            <i class="fas fa-box-open"></i>Combo Menu
+        </h1>
+        <p class="lead text-muted">Get more for less with our special combo offers!</p>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="card mb-4 filter-card">
+        <div class="card-body">
+            <form method="get" asp-action="Index" id="filterForm">
+                <div class="row g-3 align-items-end">
+                    <!-- Search Filter -->
+                    <div class="col-md-3">
+                        <label for="searchTerm" class="form-label">
+                            <i class="fas fa-search me-1"></i>Search
+                        </label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="searchTerm" 
+                               name="searchTerm"
+                               value="@ViewBag.SearchTerm"
+                               placeholder="Search combos...">
+                    </div>
+
+                    <!-- Veg Filter -->
+                    <div class="col-md-2">
+                        <label for="isVeg" class="form-label">
+                            <i class="fas fa-leaf me-1"></i>Type
+                        </label>
+                        <select class="form-select" id="isVeg" name="isVeg">
+                            <option value="">All</option>
+                            <option value="true" selected="@(ViewBag.IsVeg == true)">Veg</option>
+                            <option value="false" selected="@(ViewBag.IsVeg == false)">Non-Veg</option>
+                        </select>
+                    </div>
+
+                    <!-- Max Price Filter -->
+                    <div class="col-md-2">
+                        <label for="maxPrice" class="form-label">
+                            <i class="fas fa-rupee-sign me-1"></i>Max Price
+                        </label>
+                        <input type="number" 
+                               class="form-control" 
+                               id="maxPrice" 
+                               name="maxPrice"
+                               value="@ViewBag.MaxPrice"
+                               placeholder="Max price">
+                    </div>
+
+                    <!-- Sort By -->
+                    <div class="col-md-3">
+                        <label for="sortBy" class="form-label">
+                            <i class="fas fa-sort me-1"></i>Sort By
+                        </label>
+                        <select class="form-select" id="sortBy" name="sortBy">
+                            <option value="name" selected="@(ViewBag.SortBy == "name")">Name</option>
+                            <option value="price_low" selected="@(ViewBag.SortBy == "price_low")">Price: Low to High</option>
+                            <option value="price_high" selected="@(ViewBag.SortBy == "price_high")">Price: High to Low</option>
+                            <option value="discount" selected="@(ViewBag.SortBy == "discount")">Highest Discount</option>
+                        </select>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary-custom w-100 mb-1">
+                            <i class="fas fa-filter me-1"></i>Filter
+                        </button>
+                        <a href="@Url.Action("Index")" class="btn btn-outline-secondary w-100">
+                            <i class="fas fa-redo me-1"></i>Clear
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Combos Grid -->
+    @if (Model.Any())
+    {
+        <div class="row g-4">
+            @foreach (var combo in Model)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <!-- Combo Card -->
+                    <div class="card combo-card h-100">
+                        <!-- Combo Image -->
+                        @if (!string.IsNullOrEmpty(combo.ImageUrl))
+                        {
+                            <img src="@combo.ImageUrl" class="card-img-top combo-img" alt="@combo.ComboName">
+                        }
+                        else
+                        {
+                            <img src="https://via.placeholder.com/400x250?text=Combo" class="card-img-top combo-img" alt="@combo.ComboName">
+                        }
+                        
+                        <!-- Discount Badge -->
+                        <div class="discount-badge">
+                            <i class="fas fa-tag me-1"></i>@combo.Discount.ToString("F0")% OFF
+                        </div>
+
+                        <!-- Veg/Non-Veg Indicator -->
+                        <div class="veg-badge">
+                            @if (combo.IsVeg)
+                            {
+                                <span class="veg-indicator" title="Vegetarian"></span>
+                            }
+                            else
+                            {
+                                <span class="non-veg-indicator" title="Non-Vegetarian"></span>
+                            }
+                        </div>
+
+                        <!-- Combo Details -->
+                        <div class="card-body">
+                            <h5 class="card-title">@combo.ComboName</h5>
+                            <p class="card-text text-muted small">
+                                @(combo.Description?.Length > 100 ? combo.Description.Substring(0, 100) + "..." : combo.Description)
+                            </p>
+
+                            <!-- Pricing -->
+                            <div class="combo-pricing mb-3">
+                                <span class="original-price">₹@combo.OriginalPrice</span>
+                                <span class="combo-price">₹@combo.ComboPrice</span>
+                                <span class="savings">You Save ₹@((combo.OriginalPrice - combo.ComboPrice).ToString("F0"))</span>
+                            </div>
+
+                            <!-- Valid Until -->
+                            @if (combo.ValidUntil.HasValue && combo.ValidUntil.Value >= DateTime.Now)
+                            {
+                                <div class="alert alert-info alert-sm mb-3">
+                                    <i class="fas fa-clock me-1"></i>
+                                    Valid until @combo.ValidUntil.Value.ToString("dd MMM yyyy")
+                                </div>
+                            }
+
+                            <!-- Action Buttons -->
+                            <div class="d-flex gap-2">
+                                <a href="@Url.Action("Details", new { id = combo.ComboId })" 
+                                   class="btn btn-outline-primary flex-grow-1">
+                                    <i class="fas fa-info-circle me-1"></i>Details
+                                </a>
+                                <button class="btn btn-primary-custom flex-grow-1" 
+                                        onclick="addComboToCart(@combo.ComboId)">
+                                    <i class="fas fa-cart-plus me-1"></i>Add to Cart
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <!-- No Combos Found -->
+        <div class="text-center py-5">
+            <i class="fas fa-box-open fa-5x text-muted mb-4"></i>
+            <h3>No Combos Found</h3>
+            <p class="text-muted mb-4">No combo offers match your search criteria.</p>
+            <a href="@Url.Action("Index")" class="btn btn-primary-custom btn-lg">
+                <i class="fas fa-redo me-2"></i>View All Combos
+            </a>
+        </div>
+    }
+</div>

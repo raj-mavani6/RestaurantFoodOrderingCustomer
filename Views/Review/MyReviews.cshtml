@@ -1,0 +1,194 @@
+@model IEnumerable<RestaurantFoodOrderingCustomer.Models.Review>
+@{
+    ViewData["Title"] = "My Reviews";
+}
+
+<!-- My Reviews Page Container -->
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-12">
+            <!-- Reviews Card -->
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary-custom text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-star me-2"></i>My Reviews
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <!-- Success Message -->
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show">
+                            <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    <!-- Reviews List -->
+                    @if (Model.Any())
+                    {
+                        <div class="reviews-list">
+                            @foreach (var review in Model)
+                            {
+                                <!-- Review Card -->
+                                <div class="review-card mb-3">
+                                    <div class="row">
+                                        <!-- Food Image -->
+                                        <div class="col-md-2">
+                                            @if (!string.IsNullOrEmpty(review.FoodItem?.ImageUrl))
+                                            {
+                                                <img src="@review.FoodItem.ImageUrl" alt="@review.FoodItem.FoodName" 
+                                                     class="img-fluid rounded">
+                                            }
+                                            else
+                                            {
+                                                <div class="no-image-small">
+                                                    <i class="fas fa-utensils"></i>
+                                                </div>
+                                            }
+                                        </div>
+                                        <!-- Food & Review Details -->
+                                        <div class="col-md-8">
+                                            <h5>@review.FoodItem?.FoodName</h5>
+                                            <p class="text-muted small mb-2">@review.FoodItem?.Category?.CategoryName</p>
+                                            
+                                            <!-- Star Rating Display -->
+                                            <div class="star-display mb-2">
+                                                @for (int i = 1; i <= 5; i++)
+                                                {
+                                                    if (i <= review.Rating)
+                                                    {
+                                                        <i class="fas fa-star text-warning"></i>
+                                                    }
+                                                    else
+                                                    {
+                                                        <i class="far fa-star text-warning"></i>
+                                                    }
+                                                }
+                                                <span class="ms-2 text-muted">(@review.Rating.0/5.0)</span>
+                                            </div>
+
+                                            <!-- Review Comment -->
+                                            @if (!string.IsNullOrEmpty(review.Comment))
+                                            {
+                                                <p class="review-comment">@review.Comment</p>
+                                            }
+
+                                            <!-- Review Date -->
+                                            <p class="text-muted small mb-0">
+                                                <i class="fas fa-calendar me-1"></i>
+                                                Reviewed on @review.ReviewDate.ToString("dd MMM yyyy")
+                                            </p>
+                                        </div>
+                                        <!-- Action Buttons -->
+                                        <div class="col-md-2 text-end">
+                                            <a href="@Url.Action("Edit", new { id = review.ReviewId })" 
+                                               class="btn btn-sm btn-warning mb-2">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </a>
+                                            <button onclick="deleteReview(@review.ReviewId)" 
+                                                    class="btn btn-sm btn-danger">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    <!-- No Reviews Empty State -->
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <i class="fas fa-star fa-4x text-muted mb-3"></i>
+                            <h4>No Reviews Yet</h4>
+                            <p class="text-muted">You haven't reviewed any food items yet.</p>
+                            <a href="@Url.Action("Menu", "Home")" class="btn btn-primary-custom">
+                                <i class="fas fa-utensils me-2"></i>Browse Menu
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Primary Color Styles */
+    .bg-primary-custom {
+        background-color: var(--primary-color) !important;
+    }
+    
+    .btn-primary-custom {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+    }
+    
+    .btn-primary-custom:hover {
+        background-color: #a00e1a;
+        border-color: #a00e1a;
+    }
+    
+    /* Review Card Styling */
+    .review-card {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        border-left: 4px solid var(--primary-color);
+    }
+    
+    /* Review Comment Styling */
+    .review-comment {
+        background-color: white;
+        padding: 10px;
+        border-radius: 5px;
+        margin-top: 10px;
+        font-style: italic;
+    }
+    
+    /* No Image Placeholder */
+    .no-image-small {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        border-radius: 10px;
+        font-size: 2rem;
+    }
+    
+    /* Star Display Sizing */
+    .star-display {
+        font-size: 1.2rem;
+    }
+</style>
+
+<!-- Delete Review Script -->
+<script>
+    function deleteReview(reviewId) {
+        if (confirm('Are you sure you want to delete this review?')) {
+            fetch('/Review/Delete/' + reviewId, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to delete review');
+            });
+        }
+    }
+</script>

@@ -1,0 +1,134 @@
+@model RestaurantFoodOrderingCustomer.Models.Order
+@{
+    ViewData["Title"] = "Order Success";
+}
+
+<!-- Order Success Page Container -->
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- Success Card -->
+            <div class="card shadow-lg">
+                <div class="card-body text-center py-5">
+                    <!-- Success Icon -->
+                    <div class="success-icon mb-4">
+                        <i class="fas fa-check-circle fa-5x text-success"></i>
+                    </div>
+                    <!-- Success Message -->
+                    <h2 class="mb-3">Order Placed Successfully!</h2>
+                    <p class="lead text-muted mb-4">Thank you for your order. We'll deliver it soon.</p>
+                    
+                    <!-- Order Details Section -->
+                    <div class="order-details bg-light p-4 rounded mb-4">
+                        <h4 class="mb-3">Order Details</h4>
+                        <div class="row">
+                            <!-- Labels Column -->
+                            <div class="col-md-6 text-start">
+                                <p><strong>Order ID:</strong></p>
+                                <p><strong>Order Date:</strong></p>
+                                <p><strong>Total Amount:</strong></p>
+                                <p><strong>Payment Method:</strong></p>
+                                <p><strong>Payment Status:</strong></p>
+                                @if (!string.IsNullOrEmpty(Model.TransactionId))
+                                {
+                                    <p><strong>Transaction ID:</strong></p>
+                                }
+                                <p><strong>Order Status:</strong></p>
+                            </div>
+                            <!-- Values Column -->
+                            <div class="col-md-6 text-start">
+                                <p>#@Model.OrderId</p>
+                                <p>@Model.OrderDate.ToString("dd MMM yyyy, hh:mm tt")</p>
+                                <p class="text-success fw-bold">₹@Model.TotalAmount</p>
+                                <!-- Payment Method with Icon -->
+                                <p>
+                                    @if (Model.PaymentMethod == "Cash on Delivery")
+                                    {
+                                        <i class="fas fa-money-bill-wave text-success me-1"></i>
+                                    }
+                                    else if (Model.PaymentMethod == "Credit/Debit Card")
+                                    {
+                                        <i class="fas fa-credit-card text-primary me-1"></i>
+                                    }
+                                    else if (Model.PaymentMethod == "UPI")
+                                    {
+                                        <i class="fas fa-mobile-alt text-info me-1"></i>
+                                    }
+                                    else if (Model.PaymentMethod == "Net Banking")
+                                    {
+                                        <i class="fas fa-university text-warning me-1"></i>
+                                    }
+                                    @Model.PaymentMethod
+                                </p>
+                                <!-- Payment Status Badge -->
+                                <p>
+                                    @if (Model.PaymentStatus == "Paid")
+                                    {
+                                        <span class="badge bg-success">Paid</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning">@Model.PaymentStatus</span>
+                                    }
+                                </p>
+                                <!-- Transaction ID -->
+                                @if (!string.IsNullOrEmpty(Model.TransactionId))
+                                {
+                                    <p><code>@Model.TransactionId</code></p>
+                                }
+                                <!-- Order Status -->
+                                <p><span class="badge bg-warning">@Model.Status</span></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Order Items Table -->
+                    <div class="mb-4">
+                        <h5>Order Items</h5>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Item</th>
+                                        <th>Qty</th>
+                                        <th>Price</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Loop Order Items -->
+                                    @if (Model.OrderItems != null)
+                                    {
+                                        @foreach (var item in Model.OrderItems)
+                                        {
+                                            <tr>
+                                                <td>@item.FoodItem?.FoodName</td>
+                                                <td>@item.Quantity</td>
+                                                <td>₹@item.TotalPrice</td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Delivery Time Info -->
+                    <div class="alert alert-info">
+                        <i class="fas fa-clock me-2"></i>
+                        Estimated delivery time: <strong>30-45 minutes</strong>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-grid gap-2">
+                        <a href="@Url.Action("MyOrders", "Order")" class="btn btn-primary-custom btn-lg">
+                            <i class="fas fa-receipt me-2"></i>View My Orders
+                        </a>
+                        <a href="@Url.Action("Menu", "Home")" class="btn btn-outline-secondary">
+                            <i class="fas fa-utensils me-2"></i>Continue Shopping
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

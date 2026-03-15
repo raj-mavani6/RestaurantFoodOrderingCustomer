@@ -1,0 +1,287 @@
+@model RestaurantFoodOrderingCustomer.Models.Customer
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<!-- Profile Page Container -->
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <!-- Profile Card -->
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary-custom text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-user-circle me-2"></i>My Profile
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <!-- Success Message -->
+                    @if (ViewBag.Success != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>@ViewBag.Success
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    <!-- Error Message -->
+                    @if (ViewBag.Error != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-circle me-2"></i>@ViewBag.Error
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    <!-- Profile Tabs -->
+                    <ul class="nav nav-tabs" id="profileTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab">
+                                <i class="fas fa-user me-2"></i>Profile Information
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="edit-tab" data-bs-toggle="tab" data-bs-target="#edit" type="button" role="tab">
+                                <i class="fas fa-edit me-2"></i>Edit Profile
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="password-tab" data-bs-toggle="tab" data-bs-target="#password" type="button" role="tab">
+                                <i class="fas fa-lock me-2"></i>Change Password
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="profileTabsContent">
+                        <!-- Profile Information Tab -->
+                        <div class="tab-pane fade show active" id="profile" role="tabpanel">
+                            <div class="row mt-4">
+                                <div class="col-md-4 text-center">
+                                    <div class="profile-avatar mb-3">
+                                        <i class="fas fa-user-circle fa-8x text-primary-custom"></i>
+                                    </div>
+                                    <h4>@Model.FullName</h4>
+                                    <p class="text-muted">Customer</p>
+                                    <span class="badge bg-success">Active Account</span>
+                                </div>
+                                <div class="col-md-8">
+                                    <table class="table table-borderless">
+                                        <tr>
+                                            <td width="30%"><strong><i class="fas fa-user me-2"></i>Full Name:</strong></td>
+                                            <td>@Model.FullName</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong><i class="fas fa-envelope me-2"></i>Email:</strong></td>
+                                            <td>@Model.Email</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong><i class="fas fa-phone me-2"></i>Phone:</strong></td>
+                                            <td>@Model.Phone</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong><i class="fas fa-map-marker-alt me-2"></i>Address:</strong></td>
+                                            <td>@(Model.Address ?? "Not provided")</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong><i class="fas fa-calendar me-2"></i>Member Since:</strong></td>
+                                            <td>@Model.CreatedDate.ToString("dd MMM yyyy")</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Edit Profile Tab -->
+                        <div class="tab-pane fade" id="edit" role="tabpanel">
+                            <!-- Update Profile Form -->
+                            <form asp-action="UpdateProfile" method="post" class="mt-4">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" asp-for="CustomerId" />
+                                <input type="hidden" asp-for="Email" />
+                                <input type="hidden" asp-for="Password" />
+                                <input type="hidden" asp-for="CreatedDate" />
+                                <input type="hidden" asp-for="IsActive" />
+
+                                <div class="row">
+                                    <!-- Full Name -->
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label asp-for="FullName" class="form-label">
+                                                <i class="fas fa-user me-1"></i>Full Name *
+                                            </label>
+                                            <input asp-for="FullName" class="form-control" required />
+                                            <span asp-validation-for="FullName" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <!-- Phone -->
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label asp-for="Phone" class="form-label">
+                                                <i class="fas fa-phone me-1"></i>Phone Number *
+                                            </label>
+                                            <input asp-for="Phone" class="form-control" required />
+                                            <span asp-validation-for="Phone" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Email (Read Only) -->
+                                <div class="mb-3">
+                                    <label class="form-label">
+                                        <i class="fas fa-envelope me-1"></i>Email Address
+                                    </label>
+                                    <input type="email" class="form-control" value="@Model.Email" readonly disabled />
+                                    <small class="text-muted">Email cannot be changed for security reasons</small>
+                                </div>
+
+                                <!-- Address -->
+                                <div class="mb-3">
+                                    <label asp-for="Address" class="form-label">
+                                        <i class="fas fa-map-marker-alt me-1"></i>Address
+                                    </label>
+                                    <textarea asp-for="Address" class="form-control" rows="3" placeholder="Enter your complete address"></textarea>
+                                    <span asp-validation-for="Address" class="text-danger"></span>
+                                </div>
+
+                                <div class="text-end">
+                                    <button type="submit" class="btn btn-primary-custom">
+                                        <i class="fas fa-save me-2"></i>Update Profile
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Change Password Tab -->
+                        <div class="tab-pane fade" id="password" role="tabpanel">
+                            <!-- Change Password Form -->
+                            <form asp-action="ChangePassword" method="post" class="mt-4">
+                                @Html.AntiForgeryToken()
+                                <div class="row">
+                                    <div class="col-md-8 mx-auto">
+                                        <!-- Current Password -->
+                                        <div class="mb-3">
+                                            <label class="form-label">
+                                                <i class="fas fa-lock me-1"></i>Current Password *
+                                            </label>
+                                            <input type="password" name="currentPassword" class="form-control" required />
+                                        </div>
+
+                                        <!-- New Password -->
+                                        <div class="mb-3">
+                                            <label class="form-label">
+                                                <i class="fas fa-key me-1"></i>New Password *
+                                            </label>
+                                            <input type="password" name="newPassword" class="form-control" required minlength="6" />
+                                            <small class="text-muted">Password must be at least 6 characters long</small>
+                                        </div>
+
+                                        <!-- Confirm Password -->
+                                        <div class="mb-3">
+                                            <label class="form-label">
+                                                <i class="fas fa-check-circle me-1"></i>Confirm New Password *
+                                            </label>
+                                            <input type="password" name="confirmPassword" class="form-control" required />
+                                        </div>
+
+                                        <div class="text-end">
+                                            <button type="submit" class="btn btn-warning">
+                                                <i class="fas fa-shield-alt me-2"></i>Change Password
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="row mt-4">
+                <!-- My Orders -->
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="fas fa-shopping-bag fa-2x text-primary-custom mb-2"></i>
+                            <h5>My Orders</h5>
+                            <p class="text-muted">View your order history</p>
+                            <a href="@Url.Action("MyOrders", "Order")" class="btn btn-outline-primary">View Orders</a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Browse Menu -->
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="fas fa-utensils fa-2x text-success mb-2"></i>
+                            <h5>Browse Menu</h5>
+                            <p class="text-muted">Explore our delicious menu</p>
+                            <a href="@Url.Action("Menu", "Home")" class="btn btn-outline-success">View Menu</a>
+                        </div>
+                    </div>
+                </div>
+                <!-- My Cart -->
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="fas fa-shopping-cart fa-2x text-warning mb-2"></i>
+                            <h5>My Cart</h5>
+                            <p class="text-muted">Check items in your cart</p>
+                            <a href="@Url.Action("Index", "Cart")" class="btn btn-outline-warning">View Cart</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-primary-custom {
+        background-color: var(--primary-color) !important;
+    }
+
+    .text-primary-custom {
+        color: var(--primary-color) !important;
+    }
+
+    .btn-primary-custom {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+    }
+
+        .btn-primary-custom:hover {
+            background-color: #a00e1a;
+            border-color: #a00e1a;
+        }
+
+    .profile-avatar {
+        margin-bottom: 1rem;
+    }
+
+    .nav-tabs .nav-link {
+        color: var(--primary-color);
+        border: none;
+        border-bottom: 2px solid transparent;
+    }
+
+        .nav-tabs .nav-link.active {
+            color: var(--primary-color);
+            background-color: transparent;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+    .card {
+        border: none;
+        border-radius: 10px;
+    }
+
+    .card-header {
+        border-radius: 10px 10px 0 0 !important;
+    }
+</style>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

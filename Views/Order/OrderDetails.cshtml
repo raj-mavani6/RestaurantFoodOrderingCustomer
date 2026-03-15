@@ -1,0 +1,445 @@
+@model RestaurantFoodOrderingCustomer.Models.Order
+@{
+    ViewData["Title"] = "Order Details";
+}
+
+<!-- Order Details Page Container -->
+<div class="container my-4">
+    <!-- Page Header -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <h2><i class="fas fa-receipt me-2"></i>Order #@Model.OrderId</h2>
+            <p class="text-muted mb-0">
+                <small>Order placed on @Model.OrderDate.ToString("dd MMM yyyy, hh:mm tt")</small>
+            </p>
+        </div>
+        <!-- Back Button -->
+        <div class="col-md-6 text-end">
+            <a href="@Url.Action("MyOrders")" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Orders
+            </a>
+        </div>
+    </div>
+
+    <!-- Order Status Alert -->
+    @if (Model.Status == "Delivered")
+    {
+        <div class="alert alert-success mb-4">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-check-circle fa-2x me-3"></i>
+                <div>
+                    <h5 class="mb-0">Order Delivered Successfully!</h5>
+                    <small>Your order was delivered on @(Model.DeliveryDate?.ToString("dd MMM yyyy, hh:mm tt"))</small>
+                </div>
+            </div>
+        </div>
+    }
+    else if (Model.Status == "Cancelled")
+    {
+        <div class="alert alert-danger mb-4">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-times-circle fa-2x me-3"></i>
+                <div>
+                    <h5 class="mb-0">Order Cancelled</h5>
+                    <small>This order has been cancelled</small>
+                </div>
+            </div>
+        </div>
+    }
+    else if (Model.Status == "Preparing")
+    {
+        <div class="alert alert-warning mb-4">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-utensils fa-2x me-3"></i>
+                <div>
+                    <h5 class="mb-0">Your Food is Being Prepared!</h5>
+                    <small>Your delicious meal will be ready soon</small>
+                </div>
+            </div>
+        </div>
+    }
+    else if (Model.Status == "Confirmed")
+    {
+        <div class="alert alert-info mb-4">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-check fa-2x me-3"></i>
+                <div>
+                    <h5 class="mb-0">Order Confirmed!</h5>
+                    <small>Restaurant has confirmed your order. Preparation will start soon.</small>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="row">
+        <!-- Left Column: Order Items & Details -->
+        <div class="col-md-8">
+            <!-- Order Items Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary-custom text-white">
+                    <h5 class="mb-0"><i class="fas fa-list me-2"></i>Order Items</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Loop Order Items -->
+                    @if (Model.OrderItems != null)
+                    {
+                        @foreach (var item in Model.OrderItems)
+                        {
+                            <div class="row mb-3 pb-3 border-bottom">
+                                <div class="col-md-2">
+                                    @if (!string.IsNullOrEmpty(item.FoodItem?.ImageUrl))
+                                    {
+                                        <img src="@item.FoodItem.ImageUrl" alt="@item.FoodItem.FoodName" 
+                                             class="img-fluid rounded order-item-image">
+                                    }
+                                </div>
+                                <div class="col-md-5">
+                                    <h5>@item.FoodItem?.FoodName</h5>
+                                    <p class="text-muted mb-1">₹@item.Price per item</p>
+                                    <!-- Rate & Review Button -->
+                                    @if (Model.Status == "Delivered")
+                                    {
+                                        <a href="@Url.Action("Create", "Review", new { foodId = item.FoodId, orderId = Model.OrderId })" 
+                                           class="btn btn-sm btn-warning">
+                                            <i class="fas fa-star me-1"></i>Rate & Review
+                                        </a>
+                                    }
+                                </div>
+                                <div class="col-md-2 text-center">
+                                    <strong>Qty: @item.Quantity</strong>
+                                </div>
+                                <div class="col-md-3 text-end">
+                                    <h5>₹@item.TotalPrice</h5>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+
+            <!-- Order Summary Card -->
+            <!-- Order Summary Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary-custom text-white">
+                    <h5 class="mb-0"><i class="fas fa-calculator me-2"></i>Order Summary</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Calculate Totals -->
+                    @{
+                        decimal itemsTotal = Model.OrderItems?.Sum(i => i.TotalPrice) ?? 0;
+                        decimal deliveryFee = 40;
+                        decimal discount = Model.DiscountAmount ?? 0;
+                        decimal finalTotal = Model.FinalAmount ?? Model.TotalAmount;
+                    }
+                    
+                    <!-- Subtotal -->
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Items Subtotal:</span>
+                        <strong>₹@itemsTotal.ToString("F2")</strong>
+                    </div>
+                    
+                    <!-- Delivery Fee -->
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Delivery Fee:</span>
+                        <strong>₹@deliveryFee.ToString("F2")</strong>
+                    </div>
+
+                    <!-- Discount (if applied) -->
+                    @if (discount > 0)
+                    {
+                        <div class="d-flex justify-content-between mb-2 text-success">
+                            <span>
+                                <i class="fas fa-tag me-1"></i>Discount
+                                @if (!string.IsNullOrEmpty(Model.CouponCode))
+                                {
+                                    <span class="badge bg-success ms-1">@Model.CouponCode</span>
+                                }
+                            </span>
+                            <strong>- ₹@discount.ToString("F2")</strong>
+                        </div>
+                    }
+
+                    <hr class="my-2">
+
+                    <!-- Final Total -->
+                    <div class="d-flex justify-content-between">
+                        <h5 class="mb-0">Total Amount:</h5>
+                        <h5 class="mb-0 text-primary-custom">₹@finalTotal.ToString("F2")</h5>
+                    </div>
+
+                    <!-- Coupon Success Message -->
+                    @if (!string.IsNullOrEmpty(Model.CouponCode))
+                    {
+                        <div class="alert alert-success mt-3 mb-0">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <small><strong>Coupon Applied:</strong> @Model.CouponCode saved you ₹@discount.ToString("F2")!</small>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Delivery Information Card -->
+            <div class="card">
+                <div class="card-header bg-primary-custom text-white">
+                    <h5 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Delivery Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <h6>Delivery Address</h6>
+                            <p class="text-muted">@Model.DeliveryAddress</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Contact Phone</h6>
+                            <p class="text-muted">@Model.ContactPhone</p>
+                        </div>
+                        @if (!string.IsNullOrEmpty(Model.SpecialInstructions))
+                        {
+                            <div class="col-md-12">
+                                <h6>Special Instructions</h6>
+                                <p class="text-muted">@Model.SpecialInstructions</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Status & Payment -->
+        <div class="col-md-4">
+            <!-- Order Status Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary-custom text-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Order Status</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Current Status Badge -->
+                    <div class="mb-3">
+                        <h6>Current Status:</h6>
+                        @if (Model.Status == "Pending")
+                        {
+                            <span class="badge status-pending fs-6">@Model.Status</span>
+                        }
+                        else if (Model.Status == "Confirmed")
+                        {
+                            <span class="badge status-confirmed fs-6">@Model.Status</span>
+                        }
+                        else if (Model.Status == "Preparing")
+                        {
+                            <span class="badge status-preparing fs-6">@Model.Status</span>
+                        }
+                        else if (Model.Status == "Delivered")
+                        {
+                            <span class="badge status-delivered fs-6">@Model.Status</span>
+                        }
+                        else
+                        {
+                            <span class="badge status-cancelled fs-6">@Model.Status</span>
+                        }
+                    </div>
+
+                    <hr>
+
+                    <!-- Order Date -->
+                    <div class="mb-2">
+                        <strong>Order Date:</strong>
+                        <p class="text-muted mb-0">@Model.OrderDate.ToString("dd MMM yyyy")</p>
+                        <p class="text-muted small">@Model.OrderDate.ToString("hh:mm tt")</p>
+                    </div>
+
+                    <!-- Delivery Date -->
+                    @if (Model.DeliveryDate.HasValue)
+                    {
+                        <div class="mb-2">
+                            <strong>Delivery Date:</strong>
+                            <p class="text-muted mb-0">@Model.DeliveryDate.Value.ToString("dd MMM yyyy")</p>
+                            <p class="text-muted small">@Model.DeliveryDate.Value.ToString("hh:mm tt")</p>
+                        </div>
+                    }
+                    else if (Model.Status != "Cancelled")
+                    {
+                        <div class="alert alert-info mt-3">
+                            <i class="fas fa-clock me-2"></i>
+                            <small>Estimated delivery: 30-45 minutes</small>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Payment Information Card -->
+            <!-- Payment Information Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary-custom text-white">
+                    <h5 class="mb-0"><i class="fas fa-credit-card me-2"></i>Payment Details</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Payment Method -->
+                    <div class="mb-3">
+                        <h6>Payment Method:</h6>
+                        <p class="mb-0">
+                            @if (Model.PaymentMethod == "Cash on Delivery")
+                            {
+                                <i class="fas fa-money-bill-wave text-success me-2"></i>
+                                <strong>Cash on Delivery</strong>
+                            }
+                            else if (Model.PaymentMethod == "Credit/Debit Card")
+                            {
+                                <i class="fas fa-credit-card text-primary me-2"></i>
+                                <strong>Credit/Debit Card</strong>
+                            }
+                            else if (Model.PaymentMethod == "UPI")
+                            {
+                                <i class="fas fa-mobile-alt text-info me-2"></i>
+                                <strong>UPI Payment</strong>
+                            }
+                            else if (Model.PaymentMethod == "Net Banking")
+                            {
+                                <i class="fas fa-university text-warning me-2"></i>
+                                <strong>Net Banking</strong>
+                            }
+                            else
+                            {
+                                <strong>@Model.PaymentMethod</strong>
+                            }
+                        </p>
+                    </div>
+
+                    <hr>
+
+                    <!-- Payment Status -->
+                    <div class="mb-3">
+                        <h6>Payment Status:</h6>
+                        @if (Model.PaymentStatus == "Paid")
+                        {
+                            <span class="badge bg-success fs-6">
+                                <i class="fas fa-check-circle me-1"></i>Paid
+                            </span>
+                        }
+                        else if (Model.PaymentStatus == "Pending")
+                        {
+                            <span class="badge bg-warning text-dark fs-6">
+                                <i class="fas fa-clock me-1"></i>Pending
+                            </span>
+                        }
+                        else if (Model.PaymentStatus == "Failed")
+                        {
+                            <span class="badge bg-danger fs-6">
+                                <i class="fas fa-times-circle me-1"></i>Failed
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary fs-6">@Model.PaymentStatus</span>
+                        }
+                    </div>
+
+                    <!-- Transaction ID -->
+                    @if (!string.IsNullOrEmpty(Model.TransactionId))
+                    {
+                        <hr>
+                        <div class="mb-2">
+                            <h6>Transaction ID:</h6>
+                            <p class="text-muted mb-0">
+                                <code class="bg-light p-2 rounded d-inline-block">@Model.TransactionId</code>
+                            </p>
+                            <small class="text-muted">Keep this for your records</small>
+                        </div>
+                    }
+
+                    <!-- COD Payment Info -->
+                    @if (Model.PaymentMethod == "Cash on Delivery" && Model.PaymentStatus == "Pending")
+                    {
+                        <div class="alert alert-info mt-3 mb-0">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <small>Please keep exact change ready for delivery</small>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Help & Support Card -->
+            <div class="card">
+                <div class="card-header bg-primary-custom text-white">
+                    <h5 class="mb-0"><i class="fas fa-headset me-2"></i>Need Help?</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small">For any issues with your order, please contact us:</p>
+                    <p class="mb-1"><i class="fas fa-phone me-2"></i><strong>+91 1234567890</strong></p>
+                    <p class="mb-0"><i class="fas fa-envelope me-2"></i><strong>support@tastybites.com</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-primary-custom {
+        background-color: var(--primary-color) !important;
+    }
+    
+    .text-primary-custom {
+        color: var(--primary-color) !important;
+    }
+
+    /* Card Styling */
+    .card {
+        border: none;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+    }
+
+    .card-header {
+        border-radius: 10px 10px 0 0 !important;
+        padding: 1rem 1.25rem;
+    }
+
+    /* Order Items Styling */
+    .order-item-image {
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Alert Styling */
+    .alert {
+        border-radius: 10px;
+        border: none;
+    }
+
+    /* Code Block Styling */
+    code {
+        font-family: 'Courier New', monospace;
+        font-size: 0.9rem;
+    }
+
+    /* Responsive Design */
+    @@media (max-width: 768px) {
+        .text-end {
+            text-align: left !important;
+            margin-top: 1rem;
+        }
+
+        .btn {
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+    }
+
+    /* Badge Enhancement */
+    .badge {
+        padding: 0.5rem 1rem;
+        font-weight: 500;
+    }
+
+    /* Summary Row Styling */
+    .d-flex.justify-content-between {
+        padding: 0.5rem 0;
+    }
+
+    /* Transaction ID Styling */
+    code.bg-light {
+        border: 1px dashed #ddd;
+        font-size: 0.85rem;
+        letter-spacing: 1px;
+    }
+</style>

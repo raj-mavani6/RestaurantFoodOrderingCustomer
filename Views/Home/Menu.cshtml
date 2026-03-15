@@ -1,0 +1,596 @@
+@model IEnumerable<RestaurantFoodOrderingCustomer.Models.FoodItem>
+@{
+    ViewData["Title"] = "Menu";
+}
+
+<!-- Menu Page Container -->
+<div class="container my-4">
+    <h2 class="text-center page-heading">
+        <i class="fas fa-book-open"></i>Our Menu
+    </h2>
+
+    <!-- Filter Cards -->
+    <form method="get" asp-action="Menu" id="filterForm">
+        @* Hidden field to maintain selected category *@
+        @if (ViewBag.SelectedCategory != null)
+        {
+            <input type="hidden" name="categoryId" value="@ViewBag.SelectedCategory" />
+        }
+        
+        <div class="row g-3 mb-4">
+            <!-- Search Filter Card -->
+            <div class="col-md-3">
+                <div class="filter-card">
+                    <div class="filter-card-header">
+                        <i class="fas fa-search me-2"></i>Search Filter
+                    </div>
+                    <div class="filter-card-body">
+                        <input type="text" name="searchName" class="form-control" 
+                               value="@ViewBag.SearchName" placeholder="Search food items..." id="searchInput">
+                        <button type="button" class="btn btn-sm btn-outline-secondary mt-2 w-100" id="clearSearch">
+                            <i class="fas fa-times me-1"></i>Clear
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Price Range Filter Card -->
+            <div class="col-md-3">
+                <div class="filter-card">
+                    <div class="filter-card-header">
+                        <i class="fas fa-rupee-sign me-2"></i>Price Range Filter
+                    </div>
+                    <div class="filter-card-body">
+                        <label class="form-label-small mb-2">Select Price Range</label>
+                        <select name="priceRange" class="form-select filter-dropdown" id="priceRangeDropdown">
+                            <option value="" selected="@(ViewBag.PriceRange == null)">All Prices</option>
+                            <option value="0-100" selected="@(ViewBag.PriceRange == "0-100")">₹0 - ₹100</option>
+                            <option value="100-200" selected="@(ViewBag.PriceRange == "100-200")">₹100 - ₹200</option>
+                            <option value="200-300" selected="@(ViewBag.PriceRange == "200-300")">₹200 - ₹300</option>
+                            <option value="300-500" selected="@(ViewBag.PriceRange == "300-500")">₹300 - ₹500</option>
+                            <option value="500-1000" selected="@(ViewBag.PriceRange == "500-1000")">₹500 - ₹1000</option>
+                            <option value="1000+" selected="@(ViewBag.PriceRange == "1000+")">₹1000+</option>
+                        </select>
+                        <div class="mt-2 text-center">
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>Select range
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Food Type Filter Card -->
+            <div class="col-md-3">
+                <div class="filter-card">
+                    <div class="filter-card-header">
+                        <i class="fas fa-leaf me-2"></i>Food Type Filter
+                    </div>
+                    <div class="filter-card-body">
+                        <label class="form-label-small mb-2">Select Food Type</label>
+                        <select name="isVeg" class="form-select filter-dropdown" id="foodTypeDropdown">
+                            <option value="" selected="@(ViewBag.IsVeg == null)">
+                                <i class="fas fa-utensils"></i> All Items
+                            </option>
+                            <option value="true" selected="@(ViewBag.IsVeg == true)">
+                                🌿 Veg Only
+                            </option>
+                            <option value="false" selected="@(ViewBag.IsVeg == false)">
+                                🍗 Non-Veg Only
+                            </option>
+                        </select>
+                        <div class="mt-2 text-center">
+                            <small class="text-muted">
+                                <i class="fas fa-filter me-1"></i>Filter by type
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rating Filter Card -->
+            <div class="col-md-3">
+                <div class="filter-card">
+                    <div class="filter-card-header">
+                        <i class="fas fa-star me-2"></i>Rating Filter
+                    </div>
+                    <div class="filter-card-body">
+                        <label class="form-label-small mb-2">Minimum Rating</label>
+                        <select name="minRating" class="form-select filter-dropdown" id="ratingDropdown">
+                            <option value="" selected="@(ViewBag.MinRating == null)">All Ratings</option>
+                            <option value="4" selected="@(ViewBag.MinRating == 4)">⭐⭐⭐⭐ 4+ Stars</option>
+                            <option value="3" selected="@(ViewBag.MinRating == 3)">⭐⭐⭐ 3+ Stars</option>
+                            <option value="2" selected="@(ViewBag.MinRating == 2)">⭐⭐ 2+ Stars</option>
+                            <option value="1" selected="@(ViewBag.MinRating == 1)">⭐ 1+ Stars</option>
+                        </select>
+                        <div class="mt-2 text-center">
+                            <small class="text-muted">
+                                <i class="fas fa-star-half-alt me-1"></i>Select rating
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="d-flex gap-2 justify-content-center">
+                    <button type="submit" class="btn btn-primary-custom">
+                        <i class="fas fa-filter me-1"></i>Apply Filters
+                    </button>
+                    @if (ViewBag.SelectedCategory != null)
+                    {
+                        <a href="@Url.Action("Menu", new { categoryId = ViewBag.SelectedCategory })" class="btn btn-outline-secondary">
+                            <i class="fas fa-redo me-1"></i>Reset All Filters
+                        </a>
+                    }
+                    else
+                    {
+                        <a href="@Url.Action("Menu")" class="btn btn-outline-secondary">
+                            <i class="fas fa-redo me-1"></i>Reset All Filters
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <!-- Quick Category Filter with Carousel -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="menu-category-carousel-wrapper">
+                <!-- Left Arrow -->
+                <button class="menu-carousel-arrow menu-carousel-arrow-left" id="menuCatPrev" title="Previous">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+
+                <!-- Carousel Viewport -->
+                <div class="menu-category-carousel-viewport">
+                    <div class="menu-category-carousel-track" id="menuCategoryTrack">
+                        <!-- All Items Card -->
+                        <div class="menu-category-carousel-item">
+                            <a href="@Url.Action("Menu")" class="text-decoration-none">
+                                <div class="menu-cat-card @(ViewBag.SelectedCategory == null ? "menu-cat-card-active" : "")">
+                                    <i class="fas fa-th-large fa-2x mb-2"></i>
+                                    <span>All Items</span>
+                                </div>
+                            </a>
+                        </div>
+                        @foreach (var category in ViewBag.Categories)
+                        {
+                            <div class="menu-category-carousel-item">
+                                <a href="@Url.Action("Menu", new { categoryId = category.CategoryId })" class="text-decoration-none">
+                                    <div class="menu-cat-card @(ViewBag.SelectedCategory == category.CategoryId ? "menu-cat-card-active" : "")">
+                                        @if (!string.IsNullOrEmpty(category.ImageUrl))
+                                        {
+                                            <img src="@category.ImageUrl" alt="@category.CategoryName" class="menu-cat-card-img">
+                                        }
+                                        else
+                                        {
+                                            <i class="fas fa-utensils fa-2x mb-2"></i>
+                                        }
+                                        <span>@category.CategoryName</span>
+                                    </div>
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Right Arrow -->
+                <button class="menu-carousel-arrow menu-carousel-arrow-right" id="menuCatNext" title="Next">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Food Items Grid -->
+    <div class="row g-4">
+        @if (Model.Any())
+        {
+            <!-- Loop Food Items -->
+            @foreach (var item in Model)
+            {
+                <div class="col-md-4 col-sm-6">
+                    <div class="card h-100">
+                        @if (!string.IsNullOrEmpty(item.ImageUrl))
+                        {
+                            <img src="@item.ImageUrl" class="card-img-top food-card-img" alt="@item.FoodName">
+                        }
+                        else
+                        {
+                            <img src="https://via.placeholder.com/300x250?text=Food+Item" class="card-img-top food-card-img" alt="@item.FoodName">
+                        }
+                        <!-- Card Content -->
+                        <div class="card-body d-flex flex-column">
+                            <!-- Food Name & Indicator -->
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h5 class="card-title mb-0">@item.FoodName</h5>
+                                @if (item.IsVeg)
+                                {
+                                    <span class="veg-indicator" title="Vegetarian"></span>
+                                }
+                                else
+                                {
+                                    <span class="non-veg-indicator" title="Non-Vegetarian"></span>
+                                }
+                            </div>
+                            <!-- Description -->
+                            <p class="card-text text-muted flex-grow-1">
+                                @(item.Description?.Length > 100 ? item.Description.Substring(0, 100) + "..." : item.Description)
+                            </p>
+                            <!-- Price & Action Buttons -->
+                            <div class="d-flex justify-content-between align-items-center mt-auto">
+                                <span class="price-badge">₹@item.Price</span>
+                                <div>
+                                    <a href="@Url.Action("FoodDetails", new { id = item.FoodId })" 
+                                       class="btn btn-outline-secondary btn-sm me-2">
+                                        <i class="fas fa-info-circle"></i>
+                                    </a>
+                                    @if (item.IsAvailable)
+                                    {
+                                        <button class="btn btn-primary-custom btn-sm" onclick="addToCart(@item.FoodId)">
+                                            <i class="fas fa-cart-plus"></i>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-secondary btn-sm" disabled>
+                                            Unavailable
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        <!-- No Items Found -->
+        else
+        {
+            <div class="col-12">
+                <p class="text-center text-muted my-5">
+                    <i class="fas fa-search fa-3x mb-3"></i><br>
+                    No food items found in this category
+                </p>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .btn-primary-custom {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+    }
+
+    .btn-primary-custom:hover {
+        background-color: #9a0e19;
+        border-color: #9a0e19;
+    }
+
+    .bg-primary-custom {
+        background-color: var(--primary-color) !important;
+    }
+
+    .veg-indicator-small {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border: 2px solid #6A994E;
+        border-radius: 2px;
+        background-color: white;
+    }
+
+    .veg-indicator-small::before {
+        content: '';
+        display: block;
+        width: 6px;
+        height: 6px;
+        background-color: #6A994E;
+        border-radius: 50%;
+        margin: 1px auto;
+    }
+
+    .non-veg-indicator-small {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border: 2px solid #C1121F;
+        border-radius: 2px;
+        background-color: white;
+    }
+
+    .non-veg-indicator-small::before {
+        content: '';
+        display: block;
+        width: 6px;
+        height: 6px;
+        background-color: #C1121F;
+        border-radius: 50%;
+        margin: 1px auto;
+    }
+
+    /* Slider thumb styling for different browsers */
+    .form-range::-webkit-slider-thumb {
+        background: var(--primary-color);
+    }
+
+    .form-range::-ms-thumb {
+        background: var(--primary-color);
+    }
+
+    /* stylelint-disable-next-line */
+    /* Firefox slider thumb - CSS validator warning can be ignored, this is valid vendor-specific CSS */
+    /* ReSharper disable CssInvalidPseudoSelector */
+    input[type="range"]::-moz-range-thumb {
+        background: var(--primary-color);
+        border: none;
+    }
+    /* ReSharper restore CssInvalidPseudoSelector */
+
+    .card-header .btn-light {
+        padding: 2px 10px;
+        font-size: 0.875rem;
+    }
+
+    #priceRangeDisplay {
+        font-weight: bold;
+        color: var(--primary-color);
+    }
+
+    /* Menu Page Category Carousel */
+    .menu-category-carousel-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .menu-category-carousel-viewport {
+        overflow: hidden;
+        flex: 1;
+    }
+
+    .menu-category-carousel-track {
+        display: flex;
+        gap: 15px;
+        transition: transform 0.5s ease;
+    }
+
+    .menu-category-carousel-item {
+        min-width: calc((100% - 75px) / 6);
+        flex-shrink: 0;
+    }
+
+    .menu-cat-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 15px 10px;
+        border-radius: 12px;
+        background: #f8f9fa;
+        border: 2px solid transparent;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        min-height: 110px;
+    }
+
+    .menu-cat-card:hover {
+        border-color: #C1121F;
+        background: #fff;
+        transform: translateY(-3px);
+        box-shadow: 0 4px 15px rgba(193, 18, 31, 0.15);
+    }
+
+    .menu-cat-card-active {
+        border-color: #C1121F !important;
+        background: linear-gradient(135deg, #C1121F, #e63946) !important;
+        color: white !important;
+        box-shadow: 0 4px 15px rgba(193, 18, 31, 0.3);
+    }
+
+    .menu-cat-card-active span {
+        color: white !important;
+    }
+
+    .menu-cat-card-active i {
+        color: white !important;
+    }
+
+    .menu-cat-card span {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #333;
+        margin-top: 5px;
+        line-height: 1.2;
+    }
+
+    .menu-cat-card i {
+        color: #C1121F;
+    }
+
+    .menu-cat-card-img {
+        width: 55px;
+        height: 55px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-bottom: 5px;
+    }
+
+    .menu-carousel-arrow {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 2px solid #C1121F;
+        background: white;
+        color: #C1121F;
+        font-size: 16px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        flex-shrink: 0;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .menu-carousel-arrow:hover {
+        background: #C1121F;
+        color: white;
+        transform: scale(1.1);
+        box-shadow: 0 4px 15px rgba(193, 18, 31, 0.3);
+    }
+
+    .menu-carousel-arrow:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .menu-carousel-arrow:disabled:hover {
+        background: white;
+        color: #C1121F;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    @@media (max-width: 992px) {
+        .menu-category-carousel-item {
+            min-width: calc((100% - 45px) / 4);
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .menu-category-carousel-item {
+            min-width: calc((100% - 30px) / 3);
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .menu-category-carousel-item {
+            min-width: calc((100% - 15px) / 2);
+        }
+    }
+</style>
+
+<!-- Price Range & Filter Script -->
+<script>
+    // Price range slider functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const minPriceSlider = document.getElementById('minPriceSlider');
+        const maxPriceSlider = document.getElementById('maxPriceSlider');
+        const minPriceValue = document.getElementById('minPriceValue');
+        const maxPriceValue = document.getElementById('maxPriceValue');
+        const priceRangeDisplay = document.getElementById('priceRangeDisplay');
+
+        if (minPriceSlider && maxPriceSlider) {
+            minPriceSlider.addEventListener('input', function() {
+                const minVal = parseInt(this.value);
+                const maxVal = parseInt(maxPriceSlider.value);
+                
+                if (minVal > maxVal - 10) {
+                    this.value = maxVal - 10;
+                }
+                
+                minPriceValue.textContent = this.value;
+                updatePriceRangeDisplay();
+            });
+
+            maxPriceSlider.addEventListener('input', function() {
+                const minVal = parseInt(minPriceSlider.value);
+                const maxVal = parseInt(this.value);
+                
+                if (maxVal < minVal + 10) {
+                    this.value = minVal + 10;
+                }
+                
+                maxPriceValue.textContent = this.value;
+                updatePriceRangeDisplay();
+            });
+
+            function updatePriceRangeDisplay() {
+                const minVal = minPriceSlider.value;
+                const maxVal = maxPriceSlider.value;
+                priceRangeDisplay.textContent = `₹${minVal} - ₹${maxVal}`;
+            }
+        }
+
+        // Toggle collapse icon
+        const collapseBtn = document.querySelector('[data-bs-target="#filterCollapse"]');
+        const filterCollapse = document.getElementById('filterCollapse');
+        
+        if (collapseBtn && filterCollapse) {
+            filterCollapse.addEventListener('show.bs.collapse', function() {
+                collapseBtn.innerHTML = '<i class="fas fa-chevron-up"></i>';
+            });
+            
+            filterCollapse.addEventListener('hide.bs.collapse', function() {
+                collapseBtn.innerHTML = '<i class="fas fa-chevron-down"></i>';
+            });
+        }
+
+        // Menu Category Carousel
+        const menuTrack = document.getElementById('menuCategoryTrack');
+        const menuPrevBtn = document.getElementById('menuCatPrev');
+        const menuNextBtn = document.getElementById('menuCatNext');
+
+        if (menuTrack && menuPrevBtn && menuNextBtn) {
+            const menuItems = menuTrack.querySelectorAll('.menu-category-carousel-item');
+            const menuTotalItems = menuItems.length;
+            let menuCurrentIndex = 0;
+            let menuVisibleCount = 6;
+
+            function getMenuVisibleCount() {
+                const width = window.innerWidth;
+                if (width <= 576) return 2;
+                if (width <= 768) return 3;
+                if (width <= 992) return 4;
+                return 6;
+            }
+
+            function getMenuItemWidth() {
+                if (menuItems.length === 0) return 0;
+                const gap = 15;
+                const viewportWidth = menuTrack.parentElement.offsetWidth;
+                return (viewportWidth - (gap * (menuVisibleCount - 1))) / menuVisibleCount + gap;
+            }
+
+            function updateMenuCarousel() {
+                menuVisibleCount = getMenuVisibleCount();
+                const maxIndex = Math.max(0, menuTotalItems - menuVisibleCount);
+                if (menuCurrentIndex > maxIndex) menuCurrentIndex = maxIndex;
+
+                const itemWidth = getMenuItemWidth();
+                menuTrack.style.transform = `translateX(-${menuCurrentIndex * itemWidth}px)`;
+
+                menuPrevBtn.disabled = menuCurrentIndex <= 0;
+                menuNextBtn.disabled = menuCurrentIndex >= maxIndex;
+            }
+
+            menuPrevBtn.addEventListener('click', function () {
+                if (menuCurrentIndex > 0) {
+                    menuCurrentIndex--;
+                    updateMenuCarousel();
+                }
+            });
+
+            menuNextBtn.addEventListener('click', function () {
+                const maxIndex = Math.max(0, menuTotalItems - menuVisibleCount);
+                if (menuCurrentIndex < maxIndex) {
+                    menuCurrentIndex++;
+                    updateMenuCarousel();
+                }
+            });
+
+            window.addEventListener('resize', updateMenuCarousel);
+            updateMenuCarousel();
+        }
+    });
+</script>

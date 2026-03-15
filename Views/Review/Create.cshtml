@@ -1,0 +1,209 @@
+@model RestaurantFoodOrderingCustomer.Models.Review
+@{
+    ViewData["Title"] = "Write a Review";
+    var foodItem = ViewBag.FoodItem as RestaurantFoodOrderingCustomer.Models.FoodItem;
+    var existingReview = ViewBag.ExistingReview as RestaurantFoodOrderingCustomer.Models.Review;
+}
+
+<!-- Review Page Container -->
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- Review Card -->
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary-custom text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-star me-2"></i>Write a Review
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <!-- Info Message -->
+                    @if (ViewBag.Message != null)
+                    {
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>@ViewBag.Message
+                        </div>
+                    }
+
+                    <!-- Food Item Info -->
+                    <div class="food-info-box mb-4">
+                        <div class="row">
+                            <!-- Food Image -->
+                            <div class="col-md-3">
+                                @if (!string.IsNullOrEmpty(foodItem?.ImageUrl))
+                                {
+                                    <img src="@foodItem.ImageUrl" alt="@foodItem.FoodName" class="img-fluid rounded">
+                                }
+                                else
+                                {
+                                    <div class="no-image">
+                                        <i class="fas fa-utensils fa-3x"></i>
+                                    </div>
+                                }
+                            </div>
+                            <!-- Food Details -->
+                            <div class="col-md-9">
+                                <h4>@foodItem?.FoodName</h4>
+                                <p class="text-muted">@foodItem?.Category?.CategoryName</p>
+                                <p class="mb-0">₹@foodItem?.Price</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Review Form -->
+                    <form asp-action="Create" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="FoodId" value="@foodItem?.FoodId" />
+
+                        <!-- Star Rating -->
+                        <div class="mb-4">
+                            <label class="form-label">
+                                <i class="fas fa-star me-1"></i>Your Rating *
+                            </label>
+                            <div class="star-rating">
+                                <input type="radio" asp-for="Rating" value="5" id="star5" required />
+                                <label for="star5" title="5 stars">
+                                    <i class="fas fa-star"></i>
+                                </label>
+
+                                <input type="radio" asp-for="Rating" value="4" id="star4" />
+                                <label for="star4" title="4 stars">
+                                    <i class="fas fa-star"></i>
+                                </label>
+
+                                <input type="radio" asp-for="Rating" value="3" id="star3" />
+                                <label for="star3" title="3 stars">
+                                    <i class="fas fa-star"></i>
+                                </label>
+
+                                <input type="radio" asp-for="Rating" value="2" id="star2" />
+                                <label for="star2" title="2 stars">
+                                    <i class="fas fa-star"></i>
+                                </label>
+
+                                <input type="radio" asp-for="Rating" value="1" id="star1" />
+                                <label for="star1" title="1 star">
+                                    <i class="fas fa-star"></i>
+                                </label>
+                            </div>
+                            <span asp-validation-for="Rating" class="text-danger"></span>
+                            <!-- Rating Feedback Text -->
+                            <p class="rating-text text-muted mt-2">Select stars to rate</p>
+                        </div>
+
+                        <!-- Comment -->
+                        <div class="mb-4">
+                            <label asp-for="Comment" class="form-label">
+                                <i class="fas fa-comment me-1"></i>Your Review (Optional)
+                            </label>
+                            <textarea asp-for="Comment" class="form-control" rows="5" 
+                                      placeholder="Share your experience with this dish..."></textarea>
+                            <span asp-validation-for="Comment" class="text-danger"></span>
+                            <small class="text-muted">Maximum 1000 characters</small>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary-custom btn-lg">
+                                <i class="fas fa-paper-plane me-2"></i>Submit Review
+                            </button>
+                            <a href="@Url.Action("FoodDetails", "Home", new { id = foodItem?.FoodId })" 
+                               class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Food Details
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Primary Color Styles */
+    .bg-primary-custom {
+        background-color: var(--primary-color) !important;
+    }
+    
+    .btn-primary-custom {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+    }
+    
+    .btn-primary-custom:hover {
+        background-color: #a00e1a;
+        border-color: #a00e1a;
+    }
+    
+    /* Food Info Box */
+    .food-info-box {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+    }
+    
+    /* No Image Placeholder */
+    .no-image {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        height: 150px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        border-radius: 10px;
+    }
+    
+    /* Star Rating CSS */
+    .star-rating {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+        font-size: 2rem;
+    }
+    
+    .star-rating input {
+        display: none;
+    }
+    
+    .star-rating label {
+        color: #ddd;
+        cursor: pointer;
+        transition: color 0.2s;
+        margin: 0 5px;
+    }
+    
+    .star-rating label:hover,
+    .star-rating label:hover ~ label,
+    .star-rating input:checked ~ label {
+        color: #ffc107;
+    }
+    
+    .rating-text {
+        font-size: 0.9rem;
+    }
+</style>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <!-- Rating Feedback Script -->
+    <script>
+        // Update rating text based on selection
+        document.querySelectorAll('input[name="Rating"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const ratingText = document.querySelector('.rating-text');
+                const rating = this.value;
+                const texts = {
+                    '1': '⭐ Poor - Not satisfied',
+                    '2': '⭐⭐ Fair - Below expectations',
+                    '3': '⭐⭐⭐ Good - Satisfactory',
+                    '4': '⭐⭐⭐⭐ Very Good - Exceeded expectations',
+                    '5': '⭐⭐⭐⭐⭐ Excellent - Highly recommended!'
+                };
+                ratingText.textContent = texts[rating];
+                ratingText.style.color = '#28a745';
+                ratingText.style.fontWeight = 'bold';
+            });
+        });
+    </script>
+}

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- Head Section -->
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Restaurant Food Ordering</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Site CSS -->
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body>
+    <!-- Header Section -->
+    <header>
+        <!-- Navigation Bar -->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary-custom">
+            <div class="container">
+                <!-- Brand Logo -->
+                <a class="navbar-brand" href="@Url.Action("Index", "Home")">
+                    <i class="fas fa-utensils me-2"></i>
+                    <strong>Tasty Bites</strong>
+                </a>
+                <!-- Mobile Toggle Button -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <!-- Navigation Menu -->
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <!-- Public Navigation Links -->
+                        <!-- Home Link -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("Index", "Home")">
+                                <i class="fas fa-home me-1"></i>Home
+                            </a>
+                        </li>
+                        <!-- Menu Link -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("Menu", "Home")">
+                                <i class="fas fa-book-open me-1"></i>Menu
+                            </a>
+                        </li>
+                        <!-- Combo Menu Link -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("Index", "Combo")">
+                                <i class="fas fa-box-open me-1"></i>Combos
+                            </a>
+                        </li>
+                        <!-- About Link -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("About", "Home")">
+                                <i class="fas fa-info-circle me-1"></i>About
+                            </a>
+                        </li>
+                        <!-- Contact Link -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("Contact", "Home")">
+                                <i class="fas fa-envelope me-1"></i>Contact
+                            </a>
+                        </li>
+                        <!-- Authenticated User Navigation -->
+                        @if (Context.Session.GetInt32("CustomerId") != null)
+                        {
+                            <!-- My Orders Link -->
+                            <li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("MyOrders", "Order")">
+                                    <i class="fas fa-receipt me-1"></i>My Orders
+                                </a>
+                            </li>
+                            <!-- My Coupons Link -->
+                            <li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("MyCoupons", "Coupon")">
+                                    <i class="fas fa-ticket-alt me-1"></i>My Coupons
+                                </a>
+                            </li>
+                            <!-- Cart Link with Badge -->
+                            <li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("Index", "Cart")">
+                                    <i class="fas fa-shopping-cart me-1"></i>Cart 
+                                    <span class="badge bg-secondary-custom" id="cartCount">0</span>
+                                </a>
+                            </li>
+                            <!-- User Dropdown Menu -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-user me-1"></i>@Context.Session.GetString("CustomerName")
+                                </a>
+                                <!-- Dropdown Items -->
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="@Url.Action("Profile", "Account")">
+                                        <i class="fas fa-user-circle me-1"></i>My Profile
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="@Url.Action("MyOrders", "Order")">
+                                        <i class="fas fa-shopping-bag me-1"></i>My Orders
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="@Url.Action("MyCoupons", "Coupon")">
+                                        <i class="fas fa-ticket-alt me-1"></i>My Coupons
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="@Url.Action("MyReviews", "Review")">
+                                        <i class="fas fa-star me-1"></i>My Reviews
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="@Url.Action("ChangePassword", "Account")">
+                                        <i class="fas fa-key me-1"></i>Change Password
+                                    </a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="@Url.Action("Logout", "Account")">
+                                        <i class="fas fa-sign-out-alt me-1"></i>Logout
+                                    </a></li>
+                                </ul>
+                            </li>
+                        }
+                        @* Guest User Navigation *@
+                        else
+                        {
+                            <!-- Login Link -->
+                            <li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("Login", "Account")">
+                                    <i class="fas fa-sign-in-alt me-1"></i>Login
+                                </a>
+                            </li>
+                            <!-- Register Link -->
+                            <li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("Register", "Account")">
+                                    <i class="fas fa-user-plus me-1"></i>Register
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content Area -->
+    <main role="main" class="pb-3">
+        @RenderBody()
+    </main>
+
+    <!-- Footer Section -->
+    <footer class="footer bg-dark text-white mt-5">
+        <div class="container py-4">
+            <div class="row">
+                <!-- About Section -->
+                <div class="col-md-4 mb-4">
+                    <h5 style="color: #ffffff;"><i class="fas fa-utensils me-2"></i>Tasty Bites</h5>
+                    <p class="text-muted" style="color: #dee2e6 !important;">Delicious food delivered to your doorstep. Fresh, fast, and flavorful!</p>
+                    <!-- Social Media Links -->
+                    <div class="social-links mt-3">
+                        <a href="#" class="text-white me-2" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-white me-2" title="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-white me-2" title="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-white" title="YouTube"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <!-- Quick Links Section -->
+                <div class="col-md-4 mb-4">
+                    <h5 style="color: #ffffff;">Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="@Url.Action("Index", "Home")" class="text-muted" style="color: #dee2e6 !important;"><i class="fas fa-chevron-right me-2"></i>Home</a></li>
+                        <li><a href="@Url.Action("Menu", "Home")" class="text-muted" style="color: #dee2e6 !important;"><i class="fas fa-chevron-right me-2"></i>Menu</a></li>
+                        <li><a href="@Url.Action("About", "Home")" class="text-muted" style="color: #dee2e6 !important;"><i class="fas fa-chevron-right me-2"></i>About Us</a></li>
+                        <li><a href="@Url.Action("Contact", "Home")" class="text-muted" style="color: #dee2e6 !important;"><i class="fas fa-chevron-right me-2"></i>Contact</a></li>
+                    </ul>
+                </div>
+                <!-- Contact Info Section -->
+                <div class="col-md-4 mb-4">
+                    <h5 style="color: #ffffff;">Contact Info</h5>
+                    <ul class="list-unstyled text-muted" style="color: #dee2e6 !important;">
+                        <li class="mb-2" style="color: #dee2e6 !important;"><i class="fas fa-phone me-2"></i>+91 1234567890</li>
+                        <li class="mb-2" style="color: #dee2e6 !important;"><i class="fas fa-envelope me-2"></i>info@tastybites.com</li>
+                        <li class="mb-2" style="color: #dee2e6 !important;"><i class="fas fa-map-marker-alt me-2"></i>123 Food Street, City</li>
+                        <li class="mb-2" style="color: #dee2e6 !important;"><i class="fas fa-clock me-2"></i>10:00 AM - 11:00 PM</li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="bg-secondary my-4">
+            <!-- Copyright Section -->
+            <div class="text-start text-muted">
+                <p class="mb-0" style="color: #dee2e6 !important;">&copy; @DateTime.Now.Year Tasty Bites. All rights reserved. | Designed with <i class="fas fa-heart text-danger"></i></p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Site JS -->
+    <script src="~/js/site.js"></script>
+    <!-- Page-Specific Scripts -->
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

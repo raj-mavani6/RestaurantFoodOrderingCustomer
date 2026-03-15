@@ -1,0 +1,637 @@
+@{
+    ViewData["Title"] = "Checkout";
+}
+
+<!-- Checkout Page Container -->
+<div class="container my-5">
+    <h2 class="text-center mb-4">
+        <i class="fas fa-shopping-bag me-2"></i>Checkout
+    </h2>
+
+    <div class="row">
+        <!-- Left Column: Customer & Delivery Details -->
+        <div class="col-md-8">
+            <!-- Customer Information -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary-custom text-white">
+                    <h5 class="mb-0"><i class="fas fa-user me-2"></i>Customer Information</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Name:</strong> @ViewBag.Customer?.FullName</p>
+                    <p><strong>Email:</strong> @ViewBag.Customer?.Email</p>
+                    <p><strong>Phone:</strong> @ViewBag.Customer?.Phone</p>
+                </div>
+            </div>
+
+            <!-- Delivery Details Form -->
+            <div class="card">
+                <div class="card-header bg-primary-custom text-white">
+                    <h5 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Delivery Details</h5>
+                </div>
+                <div class="card-body">
+                    <form id="checkoutForm" onsubmit="placeOrder(event)">
+                        @Html.AntiForgeryToken()
+                        <!-- Delivery Address -->
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Delivery Address *</label>
+                            <textarea class="form-control" id="address" name="address" rows="3" 
+                                      required placeholder="Enter your complete delivery address">@ViewBag.Customer?.Address</textarea>
+                        </div>
+
+                        <!-- Contact Phone -->
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Contact Phone *</label>
+                            <input type="tel" class="form-control" id="phone" name="phone" 
+                                   required placeholder="Enter contact number" value="@ViewBag.Customer?.Phone">
+                        </div>
+
+                        <!-- Special Instructions -->
+                        <div class="mb-3">
+                            <label for="instructions" class="form-label">Special Instructions</label>
+                            <textarea class="form-control" id="instructions" name="instructions" rows="2" 
+                                      placeholder="Any special delivery instructions (optional)"></textarea>
+                        </div>
+
+                        <!-- Payment Method Selection -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-credit-card me-2"></i>Select Payment Method *
+                            </label>
+                            <div class="payment-methods">
+                                <!-- Cash on Delivery -->
+                                <div class="payment-option mb-2">
+                                    <input type="radio" name="paymentMethod" id="cod" value="Cash on Delivery" 
+                                           class="btn-check payment-method-radio" checked data-method="cod">
+                                    <label class="btn btn-outline-success w-100 text-start" for="cod">
+                                        <i class="fas fa-money-bill-wave me-2"></i>
+                                        <strong>Cash on Delivery</strong>
+                                        <small class="d-block text-muted">Pay when you receive</small>
+                                    </label>
+                                </div>
+
+                                <!-- Credit/Debit Card -->
+                                <div class="payment-option mb-2">
+                                    <input type="radio" name="paymentMethod" id="card" value="Credit/Debit Card" 
+                                           class="btn-check payment-method-radio" data-method="card">
+                                    <label class="btn btn-outline-primary w-100 text-start" for="card">
+                                        <i class="fas fa-credit-card me-2"></i>
+                                        <strong>Credit/Debit Card</strong>
+                                        <small class="d-block text-muted">Visa, Mastercard, Rupay</small>
+                                    </label>
+                                </div>
+
+                                <!-- UPI Payment -->
+                                <div class="payment-option mb-2">
+                                    <input type="radio" name="paymentMethod" id="upi" value="UPI" 
+                                           class="btn-check payment-method-radio" data-method="upi">
+                                    <label class="btn btn-outline-info w-100 text-start" for="upi">
+                                        <i class="fas fa-mobile-alt me-2"></i>
+                                        <strong>UPI Payment</strong>
+                                        <small class="d-block text-muted">PhonePe, GPay, Paytm</small>
+                                    </label>
+                                </div>
+
+                                <!-- Net Banking -->
+                                <div class="payment-option mb-3">
+                                    <input type="radio" name="paymentMethod" id="netbanking" value="Net Banking" 
+                                           class="btn-check payment-method-radio" data-method="netbanking">
+                                    <label class="btn btn-outline-warning w-100 text-start" for="netbanking">
+                                        <i class="fas fa-university me-2"></i>
+                                        <strong>Net Banking</strong>
+                                        <small class="d-block text-muted">All major banks supported</small>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Payment Details Forms -->
+                            <!-- Credit/Debit Card Form -->
+                            <div id="cardDetails" class="payment-details mt-3" style="display: none;">
+                                <div class="card border-primary">
+                                    <div class="card-header bg-primary text-white">
+                                        <i class="fas fa-credit-card me-2"></i>Card Details
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <label for="cardName" class="form-label">Cardholder Name *</label>
+                                            <input type="text" class="form-control" id="cardName" name="cardName" 
+                                                   placeholder="Name on card">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="cardNumber" class="form-label">Card Number *</label>
+                                            <input type="text" class="form-control" id="cardNumber" name="cardNumber" 
+                                                   placeholder="1234 5678 9012 3456" maxlength="19">
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="cardExpiry" class="form-label">Expiry Date *</label>
+                                                <input type="text" class="form-control" id="cardExpiry" name="cardExpiry" 
+                                                       placeholder="MM/YY" maxlength="5">
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="cardCvv" class="form-label">CVV *</label>
+                                                <input type="text" class="form-control" id="cardCvv" name="cardCvv" 
+                                                       placeholder="123" maxlength="4">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- UPI Payment Form -->
+                            <div id="upiDetails" class="payment-details mt-3" style="display: none;">
+                                <div class="card border-info">
+                                    <div class="card-header bg-info text-white">
+                                        <i class="fas fa-mobile-alt me-2"></i>UPI Details
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <label for="upiId" class="form-label">UPI ID *</label>
+                                            <input type="text" class="form-control" id="upiId" name="upiId" 
+                                                   placeholder="yourname@upi">
+                                        </div>
+                                        <div class="alert alert-info">
+                                            <i class="fas fa-info-circle me-2"></i>
+                                            <small>Supported: PhonePe, Google Pay, Paytm, WhatsApp Pay</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Net Banking Form -->
+                            <div id="netbankingDetails" class="payment-details mt-3" style="display: none;">
+                                <div class="card border-warning">
+                                    <div class="card-header bg-warning text-dark">
+                                        <i class="fas fa-university me-2"></i>Net Banking Details
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <label for="bankName" class="form-label">Select Bank *</label>
+                                            <select class="form-select" id="bankName" name="bankName">
+                                                <option value="">-- Select Your Bank --</option>
+                                                <option value="HDFC">HDFC Bank</option>
+                                                <option value="ICICI">ICICI Bank</option>
+                                                <option value="SBI">State Bank of India</option>
+                                                <option value="AXIS">Axis Bank</option>
+                                                <option value="KOTAK">Kotak Mahindra Bank</option>
+                                                <option value="IDBI">IDBI Bank</option>
+                                                <option value="BOB">Bank of Baroda</option>
+                                                <option value="PNB">Punjab National Bank</option>
+                                                <option value="YES">YES Bank</option>
+                                                <option value="INDUSIND">IndusInd Bank</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="bankUserId" class="form-label">User ID *</label>
+                                            <input type="text" class="form-control" id="bankUserId" name="bankUserId" 
+                                                   placeholder="Your bank user ID">
+                                        </div>
+                                        <div class="alert alert-warning">
+                                            <i class="fas fa-lock me-2"></i>
+                                            <small>Your banking credentials are secure and encrypted</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Place Order Button -->
+                        <button type="submit" class="btn btn-primary-custom btn-lg w-100">
+                            <i class="fas fa-check-circle me-2"></i>Place Order
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Order Summary -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-primary-custom text-white">
+                    <h5 class="mb-0"><i class="fas fa-receipt me-2"></i>Order Summary</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Cart Items List -->
+                    <h6 class="mb-3">Items in Cart:</h6>
+                    @foreach (var item in ViewBag.Cart)
+                    {
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>@item.FoodName x @item.Quantity</span>
+                            <span>₹@item.TotalPrice</span>
+                        </div>
+                    }
+                    <hr>
+                    
+                    <!-- Coupon Section -->
+                    <div class="coupon-section mb-3">
+                        <h6 class="mb-2">
+                            <i class="fas fa-ticket-alt me-2"></i>Apply Coupon
+                        </h6>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control" id="couponCode" 
+                                   placeholder="Enter coupon code" style="text-transform: uppercase;">
+                            <button class="btn btn-primary-custom" type="button" onclick="applyCoupon()">
+                                <i class="fas fa-check me-1"></i>Apply
+                            </button>
+                        </div>
+                        <button class="btn btn-outline-success btn-sm w-100 mb-2" type="button" 
+                                onclick="applyBestCoupon()">
+                            <i class="fas fa-magic me-1"></i>Auto-Apply Best Coupon
+                        </button>
+                        <button class="btn btn-link btn-sm w-100 text-decoration-none" type="button" 
+                                data-bs-toggle="collapse" data-bs-target="#availableCoupons">
+                            <i class="fas fa-list me-1"></i>View Available Coupons
+                        </button>
+                        
+                        <div class="collapse" id="availableCoupons">
+                            <div id="couponsList" class="mt-2">
+                                <small class="text-muted">Loading coupons...</small>
+                            </div>
+                        </div>
+                        
+                        <div id="couponMessage" class="mt-2"></div>
+                    </div>
+                    <hr>
+                    
+                    <!-- Price Breakdown -->
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Subtotal:</span>
+                        <strong id="subtotalAmount">₹@ViewBag.TotalAmount</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2" id="discountRow" style="display: none !important;">
+                        <span class="text-success">
+                            <i class="fas fa-tag me-1"></i>Discount:
+                        </span>
+                        <strong class="text-success" id="discountAmount">-₹0</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Delivery Fee:</span>
+                        <strong>₹40</strong>
+                    </div>
+                    <hr>
+                    <!-- Final Total -->
+                    <div class="d-flex justify-content-between mb-3">
+                        <h5>Total:</h5>
+                        <h5 class="text-primary-custom" id="finalTotal">₹@(ViewBag.TotalAmount + 40)</h5>
+                    </div>
+
+                    <!-- Delivery Time Info -->
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <small>Estimated delivery time: 30-45 minutes</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<!-- Checkout & Coupon Scripts -->
+<script>
+    let appliedCoupon = null;
+    let subtotal = @ViewBag.TotalAmount;
+    const deliveryFee = 40;
+    
+    // Load available coupons on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        loadAvailableCoupons();
+        setupPaymentMethodHandlers();
+    });
+    
+    // Payment Method Selection Handler
+    function setupPaymentMethodHandlers() {
+        const paymentRadios = document.querySelectorAll('.payment-method-radio');
+        
+        paymentRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                const method = this.getAttribute('data-method');
+                showPaymentDetails(method);
+            });
+        });
+    }
+    
+    function showPaymentDetails(method) {
+        // Hide all payment details
+        document.getElementById('cardDetails').style.display = 'none';
+        document.getElementById('upiDetails').style.display = 'none';
+        document.getElementById('netbankingDetails').style.display = 'none';
+        
+        // Clear all fields
+        clearPaymentFields();
+        
+        // Show selected payment details
+        switch(method) {
+            case 'card':
+                document.getElementById('cardDetails').style.display = 'block';
+                break;
+            case 'upi':
+                document.getElementById('upiDetails').style.display = 'block';
+                break;
+            case 'netbanking':
+                document.getElementById('netbankingDetails').style.display = 'block';
+                break;
+            case 'cod':
+            default:
+                // No additional details needed for COD
+                break;
+        }
+    }
+    
+    function clearPaymentFields() {
+        // Clear card fields
+        document.getElementById('cardName').value = '';
+        document.getElementById('cardNumber').value = '';
+        document.getElementById('cardExpiry').value = '';
+        document.getElementById('cardCvv').value = '';
+        
+        // Clear UPI fields
+        document.getElementById('upiId').value = '';
+        
+        // Clear Net Banking fields
+        document.getElementById('bankName').value = '';
+        document.getElementById('bankUserId').value = '';
+    }
+    
+    // Card number formatting
+    document.getElementById('cardNumber').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\s/g, '');
+        let formattedValue = value.replace(/(\d{4})/g, '$1 ').trim();
+        e.target.value = formattedValue;
+    });
+    
+    // Card expiry formatting (MM/YY)
+    document.getElementById('cardExpiry').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length >= 2) {
+            value = value.substring(0, 2) + '/' + value.substring(2, 4);
+        }
+        e.target.value = value;
+    });
+    
+    // CVV only numbers
+    document.getElementById('cardCvv').addEventListener('input', function(e) {
+        e.target.value = e.target.value.replace(/\D/g, '');
+    });
+    
+    function loadAvailableCoupons() {
+        const totalAmount = subtotal + deliveryFee;
+        
+        fetch(`/Coupon/AvailableCoupons?orderAmount=${totalAmount}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.coupons && data.coupons.length > 0) {
+                    let html = '<div class="available-coupons-list">';
+                    data.coupons.forEach(coupon => {
+                        const discountText = coupon.discountType === 'Percentage' 
+                            ? `${coupon.discountValue}% OFF` 
+                            : `₹${coupon.discountValue} OFF`;
+                        
+                        html += `
+                            <div class="coupon-item" onclick="selectCoupon('${coupon.code}')">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>${coupon.code}</strong>
+                                        <br><small>${coupon.description}</small>
+                                    </div>
+                                    <span class="badge bg-success">${discountText}</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                    document.getElementById('couponsList').innerHTML = html;
+                } else {
+                    document.getElementById('couponsList').innerHTML = 
+                        '<small class="text-muted"><i class="fas fa-info-circle me-1"></i>No coupons available for this order</small>';
+                }
+            })
+            .catch(error => {
+                console.error('Error loading coupons:', error);
+            });
+    }
+    
+    function selectCoupon(code) {
+        document.getElementById('couponCode').value = code;
+        applyCoupon();
+    }
+    
+    function applyCoupon() {
+        const couponCode = document.getElementById('couponCode').value.trim().toUpperCase();
+        
+        if (!couponCode) {
+            showMessage('Please enter a coupon code', 'danger');
+            return;
+        }
+        
+        const totalAmount = subtotal + deliveryFee;
+        
+        fetch('/Coupon/ValidateCoupon', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `couponCode=${encodeURIComponent(couponCode)}&orderAmount=${totalAmount}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                appliedCoupon = data;
+                updateOrderSummary(data.discountAmount, data.finalAmount);
+                showMessage(data.message, 'success');
+                document.getElementById('couponCode').value = data.code;
+            } else {
+                removeCoupon();
+                showMessage(data.message, 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showMessage('Failed to apply coupon', 'danger');
+        });
+    }
+    
+    function applyBestCoupon() {
+        const totalAmount = subtotal + deliveryFee;
+        
+        fetch(`/Coupon/GetBestCoupon?orderAmount=${totalAmount}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    appliedCoupon = data;
+                    updateOrderSummary(data.discountAmount, data.finalAmount);
+                    showMessage(data.message, 'success');
+                    document.getElementById('couponCode').value = data.code;
+                } else {
+                    removeCoupon();
+                    showMessage(data.message, 'info');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage('Failed to get best coupon', 'danger');
+            });
+    }
+    
+    function removeCoupon() {
+        appliedCoupon = null;
+        updateOrderSummary(0, subtotal + deliveryFee);
+        document.getElementById('couponCode').value = '';
+    }
+    
+    function updateOrderSummary(discount, finalTotal) {
+        const discountRow = document.getElementById('discountRow');
+        const discountAmount = document.getElementById('discountAmount');
+        const finalTotalElement = document.getElementById('finalTotal');
+        
+        if (discount > 0) {
+            discountRow.style.display = 'flex !important';
+            discountRow.classList.remove('d-none');
+            discountAmount.textContent = `-₹${discount.toFixed(2)}`;
+        } else {
+            discountRow.style.display = 'none !important';
+            discountRow.classList.add('d-none');
+        }
+        
+        finalTotalElement.textContent = `₹${finalTotal.toFixed(2)}`;
+    }
+    
+    function showMessage(message, type) {
+        const messageDiv = document.getElementById('couponMessage');
+        messageDiv.innerHTML = `
+            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                ${message}
+                ${type === 'success' && appliedCoupon ? '<button type="button" class="btn-close" onclick="removeCoupon()" aria-label="Remove"></button>' : ''}
+            </div>
+        `;
+    }
+    
+    function placeOrder(event) {
+        event.preventDefault();
+        
+        const form = event.target;
+        const address = form.address.value;
+        const phone = form.phone.value;
+        const instructions = form.instructions.value;
+        const paymentMethod = form.querySelector('input[name="paymentMethod"]:checked').value;
+        const token = form.querySelector('input[name="__RequestVerificationToken"]').value;
+        
+        // Show payment processing message for online payments
+        if (paymentMethod !== 'Cash on Delivery') {
+            if (!confirm(`You selected ${paymentMethod}. This is a demo, so the order will be placed without actual payment. Continue?`)) {
+                return;
+            }
+        }
+        
+        let body = `address=${encodeURIComponent(address)}&phone=${encodeURIComponent(phone)}&instructions=${encodeURIComponent(instructions)}&paymentMethod=${encodeURIComponent(paymentMethod)}&__RequestVerificationToken=${encodeURIComponent(token)}`;
+        
+        // Add coupon data if applied
+        if (appliedCoupon) {
+            body += `&couponCode=${encodeURIComponent(appliedCoupon.code)}&couponId=${appliedCoupon.couponId}&discountAmount=${appliedCoupon.discountAmount}&finalAmount=${appliedCoupon.finalAmount}`;
+        }
+        
+        fetch('/Order/PlaceOrder', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: body
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Mark coupon as used if applied
+                if (appliedCoupon) {
+                    markCouponAsUsed(appliedCoupon.couponId, data.orderId);
+                }
+                window.location.href = '/Order/OrderSuccess/' + data.orderId;
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to place order. Please try again.');
+        });
+    }
+    
+    function markCouponAsUsed(couponId, orderId) {
+        fetch(`/Coupon/MarkCouponAsUsed?couponId=${couponId}&orderId=${orderId}`)
+            .then(response => response.json())
+            .catch(error => console.error('Error marking coupon as used:', error));
+    }
+</script>
+}
+
+<style>
+    .bg-primary-custom {
+        background-color: var(--primary-color) !important;
+    }
+    
+    .text-primary-custom {
+        color: var(--primary-color) !important;
+    }
+
+    .payment-methods {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+    }
+
+    .payment-option label {
+        padding: 15px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .payment-option input:checked + label {
+        border-width: 2px;
+        transform: scale(1.02);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .payment-option label:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .payment-option small {
+        font-size: 0.85rem;
+        margin-top: 2px;
+    }
+    
+    .coupon-section {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        border: 2px dashed #dee2e6;
+    }
+    
+    .coupon-item {
+        background-color: white;
+        padding: 10px;
+        margin-bottom: 8px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 1px solid #dee2e6;
+    }
+    
+    .coupon-item:hover {
+        border-color: var(--primary-color);
+        box-shadow: 0 2px 8px rgba(193, 18, 31, 0.2);
+        transform: translateY(-2px);
+    }
+    
+    .available-coupons-list {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    
+    #discountRow {
+        display: none;
+    }
+    
+    #couponCode {
+        text-transform: uppercase;
+    }
+</style>

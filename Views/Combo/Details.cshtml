@@ -1,0 +1,177 @@
+@model RestaurantFoodOrderingCustomer.Models.Combo
+@{
+    ViewData["Title"] = Model.ComboName;
+}
+
+<!-- Combo Details Page Container -->
+<div class="container my-5">
+    <!-- Back Button -->
+    <div class="mb-3">
+        <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Combo Menu
+        </a>
+    </div>
+
+    <div class="row">
+        <!-- Left Column: Image and Pricing -->
+        <div class="col-md-5">
+            <!-- Combo Image -->
+            <div class="combo-detail-image mb-4">
+                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                {
+                    <img src="@Model.ImageUrl" class="img-fluid rounded" alt="@Model.ComboName">
+                }
+                else
+                {
+                    <img src="https://via.placeholder.com/500x400?text=Combo" class="img-fluid rounded" alt="@Model.ComboName">
+                }
+                
+                <!-- Discount Badge -->
+                <div class="discount-badge-large">
+                    <i class="fas fa-tag me-1"></i>@Model.Discount.ToString("F0")% OFF
+                </div>
+            </div>
+
+            <!-- Pricing Card -->
+            <div class="card pricing-card">
+                <div class="card-body">
+                    <h5 class="card-title">Pricing</h5>
+                    <div class="combo-pricing-detail">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Original Price:</span>
+                            <span class="original-price">₹@Model.OriginalPrice</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Combo Price:</span>
+                            <span class="combo-price-large">₹@Model.ComboPrice</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-success fw-bold">You Save:</span>
+                            <span class="text-success fw-bold">₹@((Model.OriginalPrice - Model.ComboPrice).ToString("F0"))</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Details and Items -->
+        <div class="col-md-7">
+            <!-- Combo Info Card -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h2 class="mb-0">@Model.ComboName</h2>
+                        @if (Model.IsVeg)
+                        {
+                            <div class="veg-icon" title="Vegetarian">
+                                <div class="veg-circle"></div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="non-veg-icon" title="Non-Vegetarian">
+                                <div class="non-veg-circle"></div>
+                            </div>
+                        }
+                    </div>
+
+                    <p class="lead text-muted">@Model.Description</p>
+
+                    @if (Model.ValidUntil.HasValue && Model.ValidUntil.Value >= DateTime.Now)
+                    {
+                        <div class="alert alert-info">
+                            <i class="fas fa-clock me-2"></i>
+                            <strong>Offer Valid Until:</strong> @Model.ValidUntil.Value.ToString("dd MMMM yyyy")
+                        </div>
+                    }
+
+                    <!-- Quantity Selector -->
+                    <div class="mb-3">
+                        <label for="quantity" class="form-label fw-bold">Quantity:</label>
+                        <div class="input-group" style="max-width: 150px;">
+                            <button class="btn btn-outline-secondary" type="button" onclick="decrementQuantity('quantity')">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <input type="number" class="form-control text-center" id="quantity" value="1" min="1" max="10">
+                            <button class="btn btn-outline-secondary" type="button" onclick="incrementQuantity('quantity')">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Add to Cart Button -->
+                    <div class="d-grid">
+                        <button class="btn btn-primary-custom btn-lg" onclick="addComboToCartWithQuantity(@Model.ComboId)">
+                            <i class="fas fa-cart-plus me-2"></i>Add to Cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Combo Items Card -->
+            <div class="card">
+                <div class="card-header bg-primary-custom text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-utensils me-2"></i>What's Included
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.ComboItems != null && Model.ComboItems.Any())
+                    {
+                        <div class="combo-items-list">
+                            @foreach (var item in Model.ComboItems)
+                            {
+                                <div class="combo-item">
+                                    <div class="d-flex align-items-center">
+                                        @if (!string.IsNullOrEmpty(item.FoodItem?.ImageUrl))
+                                        {
+                                            <img src="@item.FoodItem.ImageUrl" alt="@item.FoodItem.FoodName" class="combo-item-img">
+                                        }
+                                        else
+                                        {
+                                            <div class="combo-item-img-placeholder">
+                                                <i class="fas fa-utensils"></i>
+                                            </div>
+                                        }
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1">@item.FoodItem?.FoodName</h6>
+                                            <p class="text-muted small mb-0">
+                                                <i class="fas fa-tag me-1"></i>@item.FoodItem?.Category?.CategoryName
+                                                @if (item.FoodItem?.IsVeg == true)
+                                                {
+                                                    <span class="ms-2 veg-icon-small" title="Vegetarian"><span class="veg-dot"></span></span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="ms-2 non-veg-icon-small" title="Non-Vegetarian"><span class="non-veg-dot"></span></span>
+                                                }
+                                            </p>
+                                        </div>
+                                        <div class="quantity-badge">
+                                            <strong>×@item.Quantity</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No items available in this combo.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add to Cart Script -->
+@section Scripts {
+<script>
+    function addComboToCartWithQuantity(comboId) {
+        var quantity = parseInt(document.getElementById('quantity').value);
+        addComboToCart(comboId, quantity);
+    }
+</script>
+}

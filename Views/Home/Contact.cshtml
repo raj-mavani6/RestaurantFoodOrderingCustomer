@@ -1,0 +1,374 @@
+@{
+    ViewData["Title"] = "Contact Us";
+}
+
+<!-- Hero Section -->
+<section class="contact-hero" style="background: linear-gradient(135deg, #C1121F 0%, #FF8500 100%); padding: 80px 0; color: white;">
+    <div class="container text-center">
+        <h1 class="display-3 fw-bold mb-3">
+            <i class="fas fa-envelope me-3"></i>Contact Us
+        </h1>
+        <p class="lead fs-4">We'd Love to Hear from You!</p>
+    </div>
+</section>
+
+<!-- Success/Error Messages -->
+@if (TempData["Success"] != null)
+{
+    <div class="container mt-4">
+        <div class="alert alert-success alert-dismissible fade show">
+            <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="container mt-4">
+        <div class="alert alert-danger alert-dismissible fade show">
+            <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    </div>
+}
+
+<!-- Contact Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <!-- Contact Form -->
+            <div class="col-lg-8 mb-4">
+                <div class="card border-0 shadow-lg">
+                    <div class="card-body p-5">
+                        <h2 class="card-title fw-bold mb-4">
+                            <i class="fas fa-paper-plane me-2" style="color: #C1121F;"></i>Send Us a Message
+                        </h2>
+                        <p class="text-muted mb-4">
+                            Have a question, suggestion, or just want to say hi? Fill out the form below 
+                            and we'll get back to you as soon as possible.
+                        </p>
+
+                        <form method="post" asp-action="Contact">
+                            @Html.AntiForgeryToken()
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">
+                                        <i class="fas fa-user me-1"></i>Your Name *
+                                    </label>
+                                    <input type="text" name="name" class="form-control form-control-lg" 
+                                           placeholder="Enter your full name" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">
+                                        <i class="fas fa-envelope me-1"></i>Email Address *
+                                    </label>
+                                    <input type="email" name="email" class="form-control form-control-lg" 
+                                           placeholder="your@email.com" required>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">
+                                        <i class="fas fa-phone me-1"></i>Phone Number
+                                    </label>
+                                    <input type="tel" name="phone" class="form-control form-control-lg" 
+                                           placeholder="+91 1234567890">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">
+                                        <i class="fas fa-tag me-1"></i>Subject
+                                    </label>
+                                    <input type="text" name="subject" class="form-control form-control-lg" 
+                                           placeholder="What is this about?">
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-comment me-1"></i>Your Message *
+                                </label>
+                                <textarea name="message" class="form-control" rows="5" 
+                                          placeholder="Tell us what's on your mind..." required></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-lg px-5">
+                                <i class="fas fa-paper-plane me-2"></i>Send Message
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="col-lg-4">
+                <!-- Contact Info Card -->
+                <div class="card border-0 shadow-lg mb-4">
+                    <div class="card-body p-4">
+                        <h4 class="card-title fw-bold mb-4">
+                            <i class="fas fa-info-circle me-2" style="color: #C1121F;"></i>Contact Information
+                        </h4>
+
+                        <div class="mb-4">
+                            <div class="d-flex align-items-start mb-3">
+                                <i class="fas fa-map-marker-alt fa-lg me-3 mt-1" style="color: #C1121F;"></i>
+                                <div>
+                                    <h6 class="fw-bold mb-1">Address</h6>
+                                    <p class="text-muted mb-0">
+                                        123 Food Street, Tasty Plaza<br>
+                                        Ahmedabad, Gujarat 380001<br>
+                                        India
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="d-flex align-items-start mb-3">
+                                <i class="fas fa-phone fa-lg me-3 mt-1" style="color: #6A994E;"></i>
+                                <div>
+                                    <h6 class="fw-bold mb-1">Phone</h6>
+                                    <p class="text-muted mb-0">
+                                        +91 98765 43210<br>
+                                        +91 98765 43211
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="d-flex align-items-start mb-3">
+                                <i class="fas fa-envelope fa-lg me-3 mt-1" style="color: #C1121F;"></i>
+                                <div>
+                                    <h6 class="fw-bold mb-1">Email</h6>
+                                    <p class="text-muted mb-0">
+                                        info@tastybites.com<br>
+                                        support@tastybites.com
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-clock fa-lg me-3 mt-1" style="color: #FF8500;"></i>
+                                <div>
+                                    <h6 class="fw-bold mb-1">Working Hours</h6>
+                                    <p class="text-muted mb-0">
+                                        Mon - Fri: 9:00 AM - 10:00 PM<br>
+                                        Sat - Sun: 9:00 AM - 11:00 PM
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Social Media Card -->
+                <div class="card border-0 shadow-lg">
+                    <div class="card-body p-4">
+                        <h5 class="card-title fw-bold mb-3">
+                            <i class="fas fa-share-alt me-2" style="color: #C1121F;"></i>Follow Us
+                        </h5>
+                        <div class="d-flex gap-2">
+                            <a href="#" class="btn btn-primary btn-lg flex-fill">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="#" class="btn btn-info btn-lg flex-fill text-white">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                            <a href="#" class="btn btn-danger btn-lg flex-fill">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                            <a href="#" class="btn btn-success btn-lg flex-fill">
+                                <i class="fab fa-whatsapp"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold mb-3">Frequently Asked Questions</h2>
+            <p class="lead text-muted">Quick answers to common questions</p>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="accordion" id="faqAccordion">
+                    <!-- FAQ 1 -->
+                    <div class="accordion-item mb-3 border-0 shadow-sm">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button fw-bold" type="button" data-bs-toggle="collapse" 
+                                    data-bs-target="#faq1">
+                                <i class="fas fa-question-circle me-2" style="color: #C1121F;"></i>
+                                What are your delivery hours?
+                            </button>
+                        </h2>
+                        <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                We deliver from 9:00 AM to 10:00 PM on weekdays (Monday to Friday) and 
+                                9:00 AM to 11:00 PM on weekends (Saturday and Sunday). Orders placed outside 
+                                these hours will be delivered the next day.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 2 -->
+                    <div class="accordion-item mb-3 border-0 shadow-sm">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" 
+                                    data-bs-target="#faq2">
+                                <i class="fas fa-question-circle me-2" style="color: #C1121F;"></i>
+                                How long does delivery take?
+                            </button>
+                        </h2>
+                        <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Typical delivery time is 30-45 minutes. However, this may vary based on your 
+                                location, traffic conditions, and order volume during peak hours.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 3 -->
+                    <div class="accordion-item mb-3 border-0 shadow-sm">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" 
+                                    data-bs-target="#faq3">
+                                <i class="fas fa-question-circle me-2" style="color: #C1121F;"></i>
+                                What payment methods do you accept?
+                            </button>
+                        </h2>
+                        <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                We accept all major payment methods including Credit/Debit Cards, Net Banking, 
+                                UPI, Digital Wallets (Paytm, PhonePe, Google Pay), and Cash on Delivery.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 4 -->
+                    <div class="accordion-item mb-3 border-0 shadow-sm">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" 
+                                    data-bs-target="#faq4">
+                                <i class="fas fa-question-circle me-2" style="color: #C1121F;"></i>
+                                Can I cancel or modify my order?
+                            </button>
+                        </h2>
+                        <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Yes, you can cancel or modify your order within 5 minutes of placing it. 
+                                After that, the order goes into preparation and cannot be changed. Please 
+                                contact our support immediately if you need to make changes.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 5 -->
+                    <div class="accordion-item mb-3 border-0 shadow-sm">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" 
+                                    data-bs-target="#faq5">
+                                <i class="fas fa-question-circle me-2" style="color: #C1121F;"></i>
+                                Do you have vegetarian options?
+                            </button>
+                        </h2>
+                        <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Absolutely! We have a wide variety of vegetarian dishes clearly marked with 
+                                a green symbol. You can also use our menu filter to show only vegetarian items.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 6 -->
+                    <div class="accordion-item mb-3 border-0 shadow-sm">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" 
+                                    data-bs-target="#faq6">
+                                <i class="fas fa-question-circle me-2" style="color: #C1121F;"></i>
+                                How do I apply a coupon code?
+                            </button>
+                        </h2>
+                        <div id="faq6" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                You can apply coupon codes at checkout. Look for available coupons in your 
+                                "My Coupons" section or enter a code in the coupon field during payment. 
+                                The discount will be automatically applied to your order total.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Map Section (Optional) -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-4">
+            <h2 class="display-5 fw-bold mb-3">Find Us</h2>
+            <p class="lead text-muted">Visit us or get directions</p>
+        </div>
+        <div class="ratio ratio-21x9 rounded shadow-lg">
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d235013.74842244427!2d72.43965805485052!3d23.020161315587434!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395e848aba5bd449%3A0x4fcedd11614f6516!2sAhmedabad%2C%20Gujarat!5e0!3m2!1sen!2sin!4v1234567890123!5m2!1sen!2sin" 
+                    style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="py-5 text-white text-center" style="background-color: #C1121F;">
+    <div class="container">
+        <h2 class="display-5 fw-bold mb-3">Hungry?</h2>
+        <p class="lead mb-4">Browse our menu and order your favorite food now!</p>
+        <a href="@Url.Action("Menu", "Home")" class="btn btn-light btn-lg px-5">
+            <i class="fas fa-utensils me-2"></i>Order Now
+        </a>
+    </div>
+</section>
+
+<style>
+    .contact-hero {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .contact-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.1)" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,112C672,96,768,96,864,112C960,128,1056,160,1152,160C1248,160,1344,128,1392,112L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom;
+        opacity: 0.3;
+    }
+
+    .card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
+    }
+
+    .form-control:focus {
+        border-color: #C1121F;
+        box-shadow: 0 0 0 0.2rem rgba(193, 18, 31, 0.25);
+    }
+
+    .accordion-button:not(.collapsed) {
+        background-color: #C1121F;
+        color: white;
+    }
+
+    .accordion-button:focus {
+        box-shadow: none;
+    }
+</style>

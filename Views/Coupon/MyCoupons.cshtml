@@ -1,0 +1,290 @@
+@model IEnumerable<RestaurantFoodOrderingCustomer.Models.CustomerCoupon>
+@{
+    ViewData["Title"] = "My Coupons";
+}
+
+<!-- Coupons Page Container -->
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="mb-4">
+                <i class="fas fa-ticket-alt me-2"></i>My Coupons & Discounts
+            </h2>
+
+            @if (Model.Any())
+            {
+                <div class="row">
+                    <!-- Available Coupons -->
+                    <div class="col-md-6 mb-4">
+                        <h4 class="text-success mb-3">
+                            <i class="fas fa-check-circle me-2"></i>Available Coupons
+                        </h4>
+
+                        <!-- Loop Available Coupons -->
+                        @foreach (var item in Model.Where(c => !c.IsUsed && c.Coupon != null && c.Coupon.IsActive && c.Coupon.ExpiryDate >= DateTime.Now))
+                        {
+                            <div class="card coupon-card available mb-3">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-8">
+                                            <h5 class="coupon-code">
+                                                <i class="fas fa-tag me-2"></i>@item.Coupon.CouponCode
+                                            </h5>
+                                            <p class="coupon-description mb-2">
+                                                @item.Coupon.Description
+                                            </p>
+                                            <!-- Discount Details -->
+                                            <div class="coupon-details">
+                                                <span class="badge bg-success me-2">
+                                                    @if (item.Coupon.DiscountType == "Percentage")
+                                                    {
+                                                        <text>@item.Coupon.DiscountValue% OFF</text>
+                                                    }
+                                                    else
+                                                    {
+                                                        <text>₹@item.Coupon.DiscountValue OFF</text>
+                                                    }
+                                                </span>
+                                                @if (item.Coupon.MinimumOrderAmount > 0)
+                                                {
+                                                    <span class="badge bg-info me-2">
+                                                        Min: ₹@item.Coupon.MinimumOrderAmount
+                                                    </span>
+                                                }
+                                                @if (item.Coupon.MaxDiscountAmount.HasValue)
+                                                {
+                                                    <span class="badge bg-warning text-dark">
+                                                        Max: ₹@item.Coupon.MaxDiscountAmount
+                                                    </span>
+                                                }
+                                            </div>
+                                            <small class="text-muted d-block mt-2">
+                                                <i class="fas fa-clock me-1"></i>
+                                                Expires: @item.Coupon.ExpiryDate.ToString("dd MMM yyyy")
+                                            </small>
+                                            <small class="text-muted d-block">
+                                                <i class="fas fa-sync me-1"></i>
+                                                Remaining Usage: @item.RemainingUsage
+                                            </small>
+                                        </div>
+                                        <!-- Copy Button -->
+                                        <div class="col-md-4 text-center">
+                                            <button class="btn btn-primary-custom btn-sm copy-coupon" 
+                                                    data-code="@item.Coupon.CouponCode">
+                                                <i class="fas fa-copy me-1"></i>Copy Code
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- No Available Coupons -->
+                        @if (!Model.Any(c => !c.IsUsed && c.Coupon != null && c.Coupon.IsActive && c.Coupon.ExpiryDate >= DateTime.Now))
+                        {
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                No available coupons at the moment.
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Used Coupons -->
+                    <div class="col-md-6 mb-4">
+                        <h4 class="text-muted mb-3">
+                            <i class="fas fa-history me-2"></i>Used Coupons
+                        </h4>
+
+                        <!-- Loop Used Coupons -->
+                        @foreach (var item in Model.Where(c => c.IsUsed))
+                        {
+                            <div class="card coupon-card used mb-3">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-12">
+                                            <h5 class="coupon-code text-muted">
+                                                <i class="fas fa-tag me-2"></i>@item.Coupon.CouponCode
+                                            </h5>
+                                            <p class="coupon-description mb-2 text-muted">
+                                                @item.Coupon.Description
+                                            </p>
+                                            <div class="coupon-details">
+                                                <span class="badge bg-secondary me-2">
+                                                    @if (item.Coupon.DiscountType == "Percentage")
+                                                    {
+                                                        <text>@item.Coupon.DiscountValue% OFF</text>
+                                                    }
+                                                    else
+                                                    {
+                                                        <text>₹@item.Coupon.DiscountValue OFF</text>
+                                                    }
+                                                </span>
+                                                <span class="badge bg-dark">
+                                                    <i class="fas fa-check me-1"></i>USED
+                                                </span>
+                                            </div>
+                                            <small class="text-muted d-block mt-2">
+                                                <i class="fas fa-calendar-check me-1"></i>
+                                                Used on: @item.UsedDate?.ToString("dd MMM yyyy")
+                                            </small>
+                                            @if (item.OrderId.HasValue)
+                                            {
+                                                <small class="text-muted d-block">
+                                                    <i class="fas fa-shopping-bag me-1"></i>
+                                                    Order #@item.OrderId
+                                                </small>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- No Used Coupons -->
+                        @if (!Model.Any(c => c.IsUsed))
+                        {
+                            <div class="alert alert-secondary">
+                                <i class="fas fa-info-circle me-2"></i>
+                                You haven't used any coupons yet.
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Expired Coupons -->
+                    @if (Model.Any(c => !c.IsUsed && c.Coupon != null && c.Coupon.ExpiryDate < DateTime.Now))
+                    {
+                        <div class="col-md-12 mb-4">
+                            <h4 class="text-danger mb-3">
+                                <i class="fas fa-exclamation-triangle me-2"></i>Expired Coupons
+                            </h4>
+
+                            <!-- Loop Expired Coupons -->
+                            @foreach (var item in Model.Where(c => !c.IsUsed && c.Coupon != null && c.Coupon.ExpiryDate < DateTime.Now))
+                            {
+                                <div class="card coupon-card expired mb-3">
+                                    <div class="card-body">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-12">
+                                                <h5 class="coupon-code text-danger">
+                                                    <i class="fas fa-tag me-2"></i>@item.Coupon.CouponCode
+                                                </h5>
+                                                <p class="coupon-description mb-2 text-muted">
+                                                    @item.Coupon.Description
+                                                </p>
+                                                <span class="badge bg-danger">
+                                                    <i class="fas fa-times-circle me-1"></i>EXPIRED
+                                                </span>
+                                                <small class="text-danger d-block mt-2">
+                                                    <i class="fas fa-calendar-times me-1"></i>
+                                                    Expired on: @item.Coupon.ExpiryDate.ToString("dd MMM yyyy")
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+            <!-- No Coupons -->
+            else
+            {
+                <div class="alert alert-info text-center py-5">
+                    <i class="fas fa-ticket-alt fa-3x mb-3"></i>
+                    <h4>No coupons assigned yet</h4>
+                    <p>Check back later for exciting offers and discounts!</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .coupon-card {
+        border-left: 5px solid #C1121F;
+        transition: all 0.3s ease;
+    }
+
+    .coupon-card.available {
+        border-left-color: #6A994E;
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    }
+
+    .coupon-card.available:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(106, 153, 78, 0.2);
+    }
+
+    .coupon-card.used {
+        border-left-color: #6c757d;
+        background-color: #f8f9fa;
+        opacity: 0.7;
+    }
+
+    .coupon-card.expired {
+        border-left-color: #dc3545;
+        background-color: #fff5f5;
+        opacity: 0.6;
+    }
+
+    .coupon-code {
+        color: var(--primary-color);
+        font-weight: bold;
+        font-size: 1.3rem;
+        margin-bottom: 10px;
+    }
+
+    .coupon-description {
+        color: #666;
+        font-size: 0.95rem;
+    }
+
+    .coupon-details {
+        margin-top: 10px;
+    }
+
+    .copy-coupon {
+        width: 100%;
+    }
+
+    .btn-primary-custom {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+    }
+
+    .btn-primary-custom:hover {
+        background-color: #9a0e19;
+        border-color: #9a0e19;
+    }
+</style>
+
+<!-- Copy Coupon Code Script -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const copyButtons = document.querySelectorAll('.copy-coupon');
+
+        copyButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const code = this.getAttribute('data-code');
+
+                navigator.clipboard.writeText(code).then(() => {
+                    const originalText = this.innerHTML;
+                    this.innerHTML = '<i class="fas fa-check me-1"></i>Copied!';
+                    this.classList.remove('btn-primary-custom');
+                    this.classList.add('btn-success');
+
+                    setTimeout(() => {
+                        this.innerHTML = originalText;
+                        this.classList.remove('btn-success');
+                        this.classList.add('btn-primary-custom');
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Failed to copy:', err);
+                    alert('Failed to copy coupon code');
+                });
+            });
+        });
+    });
+</script>
