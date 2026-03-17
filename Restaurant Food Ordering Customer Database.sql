@@ -186,10 +186,6 @@ CREATE TABLE IF NOT EXISTS `ComboItems` (
 -- =============================================
 INSERT INTO `Customers` (`FullName`, `Email`, `Phone`, `Password`, `Address`, `IsActive`) VALUES
 ('Rahul Sharma', 'rahul@gmail.com', '9876543210', 'password123', '123 MG Road, Ahmedabad, Gujarat', 1),
-('Priya Patel', 'priya@gmail.com', '9876543211', 'password123', '456 SG Highway, Ahmedabad, Gujarat', 1),
-('Amit Singh', 'amit@gmail.com', '9876543212', 'password123', '789 CG Road, Ahmedabad, Gujarat', 1),
-('Neha Desai', 'neha@gmail.com', '9876543213', 'password123', '321 Navrangpura, Ahmedabad, Gujarat', 1),
-('Kiran Mehta', 'kiran@gmail.com', '9876543214', 'password123', '654 Satellite, Ahmedabad, Gujarat', 1);
 
 -- =============================================
 -- INSERT: Categories
@@ -199,12 +195,6 @@ INSERT INTO `Categories` (`CategoryName`, `Description`, `ImageUrl`, `IsActive`,
 ('Burger', 'Juicy burgers with fresh ingredients', '/images/categories/burger.jpg', 1, 0),
 ('Biryani', 'Aromatic rice dishes with rich spices', '/images/categories/biryani.jpg', 1, 0),
 ('Chinese', 'Popular Indo-Chinese cuisine', '/images/categories/chinese.jpg', 1, 0),
-('South Indian', 'Traditional South Indian dishes', '/images/categories/south-indian.jpg', 1, 1),
-('Desserts', 'Sweet treats and desserts', '/images/categories/desserts.jpg', 1, 1),
-('Beverages', 'Refreshing drinks and beverages', '/images/categories/beverages.jpg', 1, 1),
-('Thali', 'Complete meal thali combos', '/images/categories/thali.jpg', 1, 0),
-('Sandwich', 'Fresh sandwiches and wraps', '/images/categories/sandwich.jpg', 1, 0),
-('Pasta', 'Italian pasta and noodle dishes', '/images/categories/pasta.jpg', 1, 0);
 
 -- =============================================
 -- INSERT: FoodItems
@@ -223,24 +213,6 @@ INSERT INTO `FoodItems` (`FoodName`, `Description`, `Price`, `ImageUrl`, `Catego
 ('Veg Biryani', 'Fragrant basmati rice with mixed vegetables', 199.00, '/images/food/veg-biryani.jpg', 3, 1, 1),
 ('Chicken Biryani', 'Hyderabadi style chicken biryani', 299.00, '/images/food/chicken-biryani.jpg', 3, 1, 0),
 ('Mutton Biryani', 'Rich and flavorful mutton biryani', 399.00, '/images/food/mutton-biryani.jpg', 3, 1, 0),
--- Chinese (CategoryId = 4)
-('Veg Manchurian', 'Crispy vegetable balls in manchurian sauce', 179.00, '/images/food/veg-manchurian.jpg', 4, 1, 1),
-('Chicken Manchurian', 'Crispy chicken in manchurian gravy', 229.00, '/images/food/chicken-manchurian.jpg', 4, 1, 0),
-('Veg Fried Rice', 'Stir-fried rice with vegetables', 159.00, '/images/food/veg-fried-rice.jpg', 4, 1, 1),
-('Hakka Noodles', 'Indo-Chinese style stir-fried noodles', 169.00, '/images/food/hakka-noodles.jpg', 4, 1, 1),
--- South Indian (CategoryId = 5)
-('Masala Dosa', 'Crispy dosa with potato masala filling', 129.00, '/images/food/masala-dosa.jpg', 5, 1, 1),
-('Idli Sambar', 'Soft idlis served with sambar and chutney', 99.00, '/images/food/idli-sambar.jpg', 5, 1, 1),
-('Medu Vada', 'Crispy lentil fritters with chutney', 89.00, '/images/food/medu-vada.jpg', 5, 1, 1),
--- Desserts (CategoryId = 6)
-('Gulab Jamun', 'Soft milk dumplings in sugar syrup', 99.00, '/images/food/gulab-jamun.jpg', 6, 1, 1),
-('Chocolate Brownie', 'Rich chocolate brownie with ice cream', 149.00, '/images/food/brownie.jpg', 6, 1, 1),
-('Rasmalai', 'Soft cottage cheese in sweetened milk', 129.00, '/images/food/rasmalai.jpg', 6, 1, 1),
--- Beverages (CategoryId = 7)
-('Mango Lassi', 'Fresh mango yogurt smoothie', 79.00, '/images/food/mango-lassi.jpg', 7, 1, 1),
-('Masala Chai', 'Indian spiced tea', 39.00, '/images/food/masala-chai.jpg', 7, 1, 1),
-('Cold Coffee', 'Chilled coffee with ice cream', 99.00, '/images/food/cold-coffee.jpg', 7, 1, 1),
-('Fresh Lime Soda', 'Refreshing lime soda', 49.00, '/images/food/lime-soda.jpg', 7, 1, 1);
 
 -- =============================================
 -- INSERT: Coupons
@@ -248,20 +220,13 @@ INSERT INTO `FoodItems` (`FoodName`, `Description`, `Price`, `ImageUrl`, `Catego
 INSERT INTO `Coupons` (`CouponCode`, `Description`, `DiscountType`, `DiscountValue`, `MaxDiscountAmount`, `MinimumOrderAmount`, `StartDate`, `ExpiryDate`, `IsActive`, `UsageLimit`) VALUES
 ('WELCOME50', 'Flat 50% off on first order', 'Percentage', 50.00, 200.00, 299.00, NOW(), DATE_ADD(NOW(), INTERVAL 90 DAY), 1, 1),
 ('FLAT100', 'Flat Rs.100 off on orders above Rs.500', 'Fixed', 100.00, NULL, 500.00, NOW(), DATE_ADD(NOW(), INTERVAL 60 DAY), 1, 3),
-('SAVE20', '20% off on all orders', 'Percentage', 20.00, 150.00, 200.00, NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY), 1, 2),
-('TASTY30', '30% off on orders above Rs.400', 'Percentage', 30.00, 250.00, 400.00, NOW(), DATE_ADD(NOW(), INTERVAL 45 DAY), 1, 1),
-('FREEDELIVERY', 'Free delivery on orders above Rs.300', 'Fixed', 50.00, NULL, 300.00, NOW(), DATE_ADD(NOW(), INTERVAL 60 DAY), 1, 5);
 
 -- =============================================
 -- INSERT: Orders
 -- =============================================
 INSERT INTO `Orders` (`CustomerId`, `TotalAmount`, `DiscountAmount`, `FinalAmount`, `CouponCode`, `Status`, `DeliveryAddress`, `ContactPhone`, `PaymentMethod`, `PaymentStatus`, `OrderDate`) VALUES
-(1, 548.00, 100.00, 448.00, 'FLAT100', 'Delivered', '123 MG Road, Ahmedabad', '9876543210', 'Online', 'Paid', DATE_SUB(NOW(), INTERVAL 5 DAY)),
-(2, 349.00, 0.00, 349.00, NULL, 'Delivered', '456 SG Highway, Ahmedabad', '9876543211', 'COD', 'Paid', DATE_SUB(NOW(), INTERVAL 4 DAY)),
-(3, 697.00, 150.00, 547.00, 'SAVE20', 'Preparing', '789 CG Road, Ahmedabad', '9876543212', 'Online', 'Paid', DATE_SUB(NOW(), INTERVAL 1 DAY)),
+(1, 548.00, 100.00, 448.00, 'FLAT100', 'Delivered', '123 MG Road, Ahmedabad', '9876543210', 'Online', 'Paid', DATE_SUB(NOW(), INTERVAL 5 DAY)),,
 (1, 299.00, 0.00, 299.00, NULL, 'Pending', '123 MG Road, Ahmedabad', '9876543210', 'COD', 'Pending', NOW()),
-(4, 428.00, 50.00, 378.00, 'FREEDELIVERY', 'Out for Delivery', '321 Navrangpura, Ahmedabad', '9876543213', 'Online', 'Paid', DATE_SUB(NOW(), INTERVAL 2 HOUR));
-
 -- =============================================
 -- INSERT: OrderItems
 -- =============================================
@@ -269,24 +234,13 @@ INSERT INTO `OrderItems` (`OrderId`, `FoodId`, `Quantity`, `Price`, `TotalPrice`
 (1, 1, 2, 249.00, 498.00),
 (1, 24, 1, 49.00, 49.00),
 (2, 2, 1, 349.00, 349.00),
-(3, 9, 2, 299.00, 598.00),
-(3, 22, 1, 99.00, 99.00),
-(4, 8, 1, 199.00, 199.00),
-(4, 21, 1, 79.00, 79.00),
-(5, 15, 2, 129.00, 258.00),
-(5, 17, 1, 89.00, 89.00),
-(5, 22, 1, 79.00, 79.00);
 
 -- =============================================
 -- INSERT: Reviews
 -- =============================================
 INSERT INTO `Reviews` (`CustomerId`, `FoodId`, `Rating`, `Comment`, `IsApproved`) VALUES
 (1, 1, 5, 'Amazing Margherita Pizza! Best in town.', 1),
-(2, 9, 4, 'Chicken Biryani was good, slightly less spicy.', 1),
-(3, 15, 5, 'Masala Dosa was crispy and delicious!', 1),
-(1, 19, 4, 'Chocolate Brownie was rich and tasty.', 1),
-(4, 5, 3, 'Veg Burger was average, expected more crunch.', 1),
-(2, 8, 5, 'Best Veg Biryani I have ever had!', 1);
+(2, 9, 4, 'Chicken Biryani was good, slightly less spicy.', 1),;
 
 -- =============================================
 -- INSERT: CustomerCoupons
@@ -294,10 +248,6 @@ INSERT INTO `Reviews` (`CustomerId`, `FoodId`, `Rating`, `Comment`, `IsApproved`
 INSERT INTO `CustomerCoupons` (`CustomerId`, `CouponId`, `RemainingUsage`, `IsUsed`) VALUES
 (1, 1, 0, 1),
 (2, 1, 1, 0),
-(3, 2, 2, 0),
-(4, 3, 1, 0),
-(5, 4, 1, 0),
-(1, 5, 4, 0);
 
 -- =============================================
 -- INSERT: Combos
@@ -305,8 +255,6 @@ INSERT INTO `CustomerCoupons` (`CustomerId`, `CouponId`, `RemainingUsage`, `IsUs
 INSERT INTO `Combos` (`ComboName`, `Description`, `OriginalPrice`, `ComboPrice`, `Discount`, `ImageUrl`, `IsAvailable`, `IsVeg`, `ValidUntil`) VALUES
 ('Pizza Party Combo', '2 Margherita Pizza + 2 Cold Coffee', 696.00, 499.00, 28.30, '/images/combos/pizza-party.jpg', 1, 1, DATE_ADD(NOW(), INTERVAL 30 DAY)),
 ('Biryani Feast', '1 Chicken Biryani + 1 Veg Biryani + 2 Mango Lassi', 656.00, 499.00, 23.90, '/images/combos/biryani-feast.jpg', 1, 0, DATE_ADD(NOW(), INTERVAL 30 DAY)),
-('South Indian Special', '2 Masala Dosa + 2 Idli Sambar + 2 Masala Chai', 534.00, 399.00, 25.30, '/images/combos/south-indian-combo.jpg', 1, 1, DATE_ADD(NOW(), INTERVAL 45 DAY)),
-('Burger Mania', '2 Classic Veg Burger + 1 Paneer Burger + 3 Fresh Lime Soda', 624.00, 449.00, 28.00, '/images/combos/burger-mania.jpg', 1, 1, DATE_ADD(NOW(), INTERVAL 30 DAY));
 
 -- =============================================
 -- INSERT: ComboItems
@@ -315,12 +263,4 @@ INSERT INTO `ComboItems` (`ComboId`, `FoodId`, `Quantity`) VALUES
 (1, 1, 2),   -- 2x Margherita Pizza
 (1, 23, 2),  -- 2x Cold Coffee
 (2, 9, 1),   -- 1x Chicken Biryani
-(2, 8, 1),   -- 1x Veg Biryani
-(2, 21, 2),  -- 2x Mango Lassi
-(3, 15, 2),  -- 2x Masala Dosa
-(3, 16, 2),  -- 2x Idli Sambar
-(3, 22, 2),  -- 2x Masala Chai
-(4, 5, 2),   -- 2x Classic Veg Burger
-(4, 7, 1),   -- 1x Paneer Burger
-(4, 24, 3);  -- 3x Fresh Lime Soda
 
